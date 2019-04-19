@@ -1,0 +1,36 @@
+Installation Notes for the Spider/Pi Zero
+=========================================
+(Notes: You will need to add reboots at opportune places).
+
+1. Load Raspbian Stretch (not Lite, not Full); Img file 3.4GB
+
+2. Load in to Pi Zero.
+
+3. Standard initial settings, plus:
+   In Raspberry Pi Config:
+   a. Set platform name: raspberrypiZ1   
+   b. set password.
+   c. Enable ssh
+   In Add/Remove Software:
+   a. GNOME Onscreen Keyboard
+   
+4. Install:
+   a. vim
+   
+4. Increase Swapsize:
+    a. Stop the swap. sudo dphys-swapfile swapoff.
+    b. Modify the size of the swap. As root , edit the file /etc/dphys-swapfile and modify the variable CONF_SWAPSIZE : CONF_SWAPSIZE=1024. ...
+    c. Start the swap. sudo dphys-swapfile swapon.
+	(ref: https://raspberrypi.stackexchange.com/questions/41150/virtual-keyboard-activation)
+
+5. Install on-screen virtual keyboard.
+    sudo apt-get install matchbox-keyboard
+	(https://raspberrypi.stackexchange.com/questions/41150/virtual-keyboard-activation)
+	
+6. Create ~pi/python/spider
+
+7. Load spider files from backup.
+
+8. Load Speaker bonnet driver:
+   curl -sS https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/master/i2samp.sh | bash
+   (ref: https://learn.adafruit.com/adafruit-speaker-bonnet-for-raspberry-pi/raspberry-pi-usage)
