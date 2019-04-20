@@ -138,7 +138,7 @@ def track_pir():
     # wait until PIR drops
     while GPIO.input(pir_pin):
         time.sleep(1)
-    print("GPIO(PIR): "+ str(bool(GPIO.input(pir_pin)))) # True = HIGH
+#   print("GPIO(PIR): "+ str(bool(GPIO.input(pir_pin)))) # True = HIGH
 
     green_light.set("off")
     while True:
@@ -159,7 +159,7 @@ def track_pir():
 #           play_sound.set()
 
             curr_time = datetime.datetime.now().strftime('%H:%M:%S')
-            print(">Rising edge detected on port", str(pir_pin) + ",", curr_time)
+            print(">Rising  edge detected on port", str(pir_pin) + ",", curr_time)
 
     print("track_pir shutting down")
 

@@ -17,20 +17,31 @@ Installation Notes for the Spider/Pi Zero
 4. Install:
    a. vim
    
-4. Increase Swapsize:
+5. Increase Swapsize:
     a. Stop the swap. sudo dphys-swapfile swapoff.
     b. Modify the size of the swap. As root , edit the file /etc/dphys-swapfile and modify the variable CONF_SWAPSIZE : CONF_SWAPSIZE=1024. ...
     c. Start the swap. sudo dphys-swapfile swapon.
 	(ref: https://raspberrypi.stackexchange.com/questions/41150/virtual-keyboard-activation)
 
-5. Install on-screen virtual keyboard.
+6. Install on-screen virtual keyboard.
     sudo apt-get install matchbox-keyboard
 	(https://raspberrypi.stackexchange.com/questions/41150/virtual-keyboard-activation)
 	
-6. Create ~pi/python/spider
+7. Create ~pi/python/spider
 
 7. Load spider files from backup.
 
 8. Load Speaker bonnet driver:
    curl -sS https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/master/i2samp.sh | bash
    (ref: https://learn.adafruit.com/adafruit-speaker-bonnet-for-raspberry-pi/raspberry-pi-usage)
+
+9. sudo apt install gnome-schedule
+   This installs a GUI crontab entry system.
+   Maybe unnecessary, but manual crotab was not prodcuing results.
+
+10. Scheduled Tasks (GUI crontab)
+    command: ~pi/run_spider.py (Default behaviour)
+    Basic: At reboot
+
+11. Alternative: "crontab -e" with:
+    @reboot ~pi/run_spider.sh
