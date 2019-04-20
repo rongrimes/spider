@@ -9,6 +9,7 @@ import signal
 import subprocess
 import threading
 import time
+from sys import exit
 
 # Local imports
 from green_light import *
@@ -26,6 +27,9 @@ led_intensity = [int((10**(r/led_steps)-1)*100/9) for r in range(0,led_steps+1)]
 sound_parmfile = "soundparms.json"
 sound_parms = {"ON": False, "VOLUME":10000} # 0 <= VOLUME  <= 32768
 sound_file = "~pi/python/spider/08.mp3"
+
+ospid_file = "/home/pi/python//spider/ospid.txt"
+log_file = "/home/pi/python/spider/logfile.txt"
 
 #---------------------------------------------------------------
 def led_setup(pin_no):
@@ -164,7 +168,20 @@ def track_pir():
     print("track_pir shutting down")
 
 #---------------------------------------------------------------------------------
+# START HERE (ReallY!)
+# See if we're already running.
+if os.path.isfile(ospid_file):
+    print("spider.py is already running.\nIf this message in error,",
+            "remove the file:", ospid_file)
+    with open(log_file, "w") as f:
+        f.write("spider.py is already running.\nIf this message in error," \
+                "remove the file:" + ospid_file + "\n") 
+    exit()
 
+with open(ospid_file, "w") as f:
+    f.write(str(os.getpid()))
+
+# Initialize the Pi
 GPIO.setmode(GPIO.BCM)
 #GPIO.setwarnings(False)     # Turn off warning Cif we didn't a GPIO cleanup
 
@@ -229,3 +246,8 @@ thr_flasher.join()
 sound.join()
 
 GPIO.cleanup()           # clean up GPIO
+
+if os.path.isfile(ospid_file):
+    os.remove(ospid_file)
+if os.path.isfile(log_file):
+    os.remove(log_file)
