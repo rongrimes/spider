@@ -1,3 +1,9 @@
 #!/bin/bash
+LOGFILE="spider_log.txt"
+
 cd ~pi/python/spider
-sudo ./spider.py
+echo >> $LOGFILE
+echo "-------------------------" >> $LOGFILE
+date >> $LOGFILE
+echo >> $LOGFILE
+sudo ./spider.py >> $LOGFILE
