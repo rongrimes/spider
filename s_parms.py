@@ -30,6 +30,7 @@ def put_sound_parms():
 #---------------------------------------------------------------
 # Get sound parms
 get_sound_parms()
+changed = False
 
 try:
     while True:
@@ -38,9 +39,11 @@ try:
             break
         if value.lower() == "true"[:len(value)]: 
             sound_parms["ON"] = True
+            changed = True
             break
         if value.lower() == "false"[:len(value)]: 
             sound_parms["ON"] = False
+            changed = True
             break
 
     while True:
@@ -54,11 +57,13 @@ try:
             continue
         if 0 <= value <= 32768: 
             sound_parms["VOLUME"] = value
+            changed = True
             break
 
 except KeyboardInterrupt:
     print()
 
-put_sound_parms()
+if changed:
+    put_sound_parms()
 
 print("\n", sound_parms)
