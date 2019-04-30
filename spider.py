@@ -28,7 +28,7 @@ sound_parmfile = "soundparms.json"
 sound_parms = {"ON": False, "VOLUME":10000} # 0 <= VOLUME  <= 32768
 sound_file = "~pi/python/spider/08.mp3"
 
-ospid_file = "/home/pi/python//spider/ospid.txt"
+ospid_file = "/home/pi/python/spider/ospid.txt"
 log_file = "/home/pi/python/spider/logfile.txt"
 
 #---------------------------------------------------------------
