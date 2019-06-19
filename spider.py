@@ -9,6 +9,7 @@ import signal
 import subprocess
 import threading
 import time
+from random import randint
 from sys import exit
 
 # Local imports
@@ -20,13 +21,19 @@ led_RED = 26
 led_GRN = 6
 led_BLU = 13
 
-led_steps = 20
-led_intensity = [int((10**(r/led_steps)-1)*100/9) for r in range(0,led_steps+1)]
-                # exponential series [0..100]
+spider_parmfile = "spiderparms.json"
+spider_parms = {"ON": False,
+        "VOLUME":10000,     # 0 <= VOLUME  <= 32768
+        "MAX_INT":25 }      # 0 <= MAX_INT <= 100
 
-sound_parmfile = "soundparms.json"
-sound_parms = {"ON": False, "VOLUME":10000} # 0 <= VOLUME  <= 32768
-sound_file = "~pi/python/spider/08.mp3"
+led_steps = 20
+max_int = spider_parms["MAX_INT"]
+led_intensity = [int((10**(r/led_steps)-1)*max_int/9) for r in range(0,led_steps+1)]
+                   # exponential series [0..100]
+print(led_intensity)
+
+sound_dir = "/home/pi/python/spider"        # don't use ~pi form - fails!
+sound_time = 8    # play sound for * seconds
 
 ospid_file = "/home/pi/python/spider/ospid.txt"
 log_file = "/home/pi/python/spider/logfile.txt"
@@ -80,18 +87,44 @@ def flash_GB():
             seconds += 2
 
 #---------------------------------------------------------------
-def get_sound_parms():
-    global sound_parms
+def get_spider_parms():
+    global spider_parms
 
     try:
-        with open(sound_parmfile, "r") as f:
-            sound_parms = json.load(f)
+        with open(spider_parmfile, "r") as f:
+            spider_parms = json.load(f)
     except FileNotFoundError:
-        # use defaults defind above
+        # use defaults defined above
         pass
 
 #---------------------------------------------------------------
 def sound_board():
+    global spider_parms
+    global sound_index
+
+    def make_sound_list(sound_dir):
+        sound_list = []
+        if os.path.isdir(sound_dir):
+            os.chdir(sound_dir)
+        else:
+            print(sound_dir + ": Sound dir does not exist.")
+            return sound_list # dir doesn't exist,
+                              #    return empty list = no sound files
+        for file in os.listdir("."):
+            _, file_extension = os.path.splitext(file)     # discard filename part
+            if  file_extension[1:] in {"mp3"}:    # set of allowed sound files
+                sound_list.append(sound_dir + "/" + file)
+        print("Sound list: ", sound_list)
+        return sound_list
+
+    def get_sound_file(sound_list):
+        global sound_index
+#       return sound_list[randint(0, len(sound_list) - 1)]   # randomises the list
+        sound_index =- 1
+        if sound_index < 0:
+            sound_index = len(sound_list) - 1
+        return sound_list[sound_index]
+
     def kill_sound():
         try:
             os.killpg(os.getpgid(pid.pid), signal.SIGTERM)
@@ -107,19 +140,26 @@ def sound_board():
 
     print("sound     thread:", sound.name)
 
-    while True:
+    sound_list = make_sound_list(sound_dir)
+    sound_index = len(sound_list) - 1
+
+    while len(sound_list) > 0:    # invariant in loop, but proc will exit if empty.
+        # Get spider parms
         if exit_or_sound_ev(): 
             kill_sound()
             break
 
         play_sound.clear()
-        mpg123 = "exec sudo -u pi mpg123 -f " + str(sound_parms["VOLUME"]) \
+        sound_file = get_sound_file(sound_list)
+
+        get_spider_parms()         # since they can change outide the program.
+        mpg123 = "exec sudo -u pi mpg123 -f " + str(spider_parms["VOLUME"]) \
                 + " " + sound_file
 
         pid = subprocess.Popen(mpg123, stdout=subprocess.PIPE, shell=True,
                 preexec_fn=os.setsid)
-        print("pid=", pid.pid)
-        time.sleep(5)
+#       print("pid=", pid.pid)
+        time.sleep(sound_time)
 
         kill_sound()
 
@@ -168,7 +208,7 @@ def track_pir():
     print("track_pir shutting down")
 
 #---------------------------------------------------------------------------------
-# START HERE (ReallY!)
+# START HERE (Really!)
 # See if we're already running.
 if os.path.isfile(ospid_file):
     print("spider.py is already running.\nIf this message in error,",
@@ -218,14 +258,14 @@ thr_flasher.start()
 sound = threading.Thread(target=sound_board)
 sound.start()
 
-# Get sound parms
-get_sound_parms()
+# Get spider parms
+get_spider_parms()
 
 try:
     while True:
         pir_on_event.wait()        # wait for the on event
         pir_on_event.clear()
-        if sound_parms["ON"]:
+        if spider_parms["ON"]:
             play_sound.set()
         led_up(pwm_RED)
 
