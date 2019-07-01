@@ -37,11 +37,8 @@ Installation Notes for the Spider/Pi Zero
 
 9. sudo apt install gnome-schedule
    This installs a GUI crontab entry system.
-   Maybe unnecessary, but manual crotab was not prodcuing results.
+   Maybe unnecessary, but manual crontab was not producing results.
 
-10. Scheduled Tasks (GUI crontab)
-    command: ~pi/run_spider.py (Default behaviour)
-    Basic: At reboot
-
-11. Alternative: "crontab -e" with:
-    @reboot ~pi/run_spider.sh
+10. Alternative: "crontab -e" with:
+    @reboot rm /home/pi/python/spider/ospid.txt # JOB_ID_2
+    @reboot sleep 2 && ~pi/run_spider.sh # JOB_ID_1
