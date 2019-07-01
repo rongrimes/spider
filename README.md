@@ -25,7 +25,7 @@ The spider sensor resides in the nose and detects people, animals and ghoulies p
 * A short sound clip plays
 
 While there is a stranger detected, the eyes stay on, and they and the body flashes every couple of seconds (in "anger").
-When the nose sensor no longer detects a nearby presence, the eyes  transiton to "off", and the flashing lights flash only every 10 seconds.
+When the nose sensor no longer detects a nearby presence, the eyes  transition to "off", and the flashing lights flash only every 10 seconds.
 
 ## Operations
 Start spider with:  
