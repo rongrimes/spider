@@ -269,7 +269,7 @@ get_spider_parms()
 
 led_steps = 20
 max_int = spider_parms["MAX_INT"]
-led_intensity = [int((10**(r/led_steps)-1)*max_int/9) for r in range(0,led_steps+1)]
+led_intensity = [((10**(r/led_steps)-1)*max_int/9) for r in range(0,led_steps+1)]
                    # exponential series [0..100]
 print(led_intensity)
 
