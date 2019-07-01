@@ -2,7 +2,7 @@ Installation Notes for the Spider/Pi Zero
 =========================================
 (Notes: You will need to add reboots at opportune places).
 
-1. Load Raspbian Stretch (not Lite, not Full); Img file 3.4GB
+1. Load Raspbian Stretch (not Lite); Img file 3.4GB
 
 2. Load in to Pi Zero.
 
@@ -15,7 +15,7 @@ Installation Notes for the Spider/Pi Zero
    a. GNOME Onscreen Keyboard
    
 4. Install:
-   a. vim
+   a. sudo apt install vim
    
 5. Increase Swapsize:
     a. Stop the swap. sudo dphys-swapfile swapoff.
