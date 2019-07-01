@@ -20,12 +20,21 @@ The spider grew "organically" over two semesters of the **Art Metal** class held
 \** (Image to come)
 
 ## General Operations
-The spider sensor resides in the nose and detects people, animals and ghoulies passing nearby. On detaection:
+The spider sensor resides in the nose and detects people, animals and ghoulies passing nearby. On detection:
 * The eyes transition up to full brightness
 * A short sound clip plays
 
 While there is a stranger detected, the eyes stay on, and they and the body flashes every couple of seconds (in "anger").
 When the nose sensor no longer detects a nearby presence, the eyes  transiton to "off", and the flashing lights flash only every 10 seconds.
+
+## Operations
+Start spider with:  
+crontab:
+```
+@reboot rm /home/pi/python/spider/ospid.txt # JOB_ID_1; Remove pid file to prevent mulitiple incursions of spider.
+@reboot sleep 2 && ~pi/run_spider.sh # JOB_ID_2; start spider.
+```
+
 ***
 Ron Grimes  
 Toronto  
