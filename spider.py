@@ -9,8 +9,8 @@ import signal
 import subprocess
 import threading
 import time
-from random import randint
 from sys import exit
+#from random import randint
 
 # Local imports
 from green_light import *
@@ -25,12 +25,6 @@ spider_parmfile = "spiderparms.json"
 spider_parms = {"ON": False,
         "VOLUME":10000,     # 0 <= VOLUME  <= 32768
         "MAX_INT":25 }      # 0 <= MAX_INT <= 100
-
-led_steps = 20
-max_int = spider_parms["MAX_INT"]
-led_intensity = [int((10**(r/led_steps)-1)*max_int/9) for r in range(0,led_steps+1)]
-                   # exponential series [0..100]
-print(led_intensity)
 
 sound_dir = "/home/pi/python/spider"        # don't use ~pi form - fails!
 sound_time = 8    # play sound for * seconds
@@ -95,6 +89,7 @@ def get_spider_parms():
             spider_parms = json.load(f)
     except FileNotFoundError:
         # use defaults defined above
+        print("spider_parms file not found.")
         pass
 
 #---------------------------------------------------------------
@@ -120,9 +115,10 @@ def sound_board():
     def get_sound_file(sound_list):
         global sound_index
 #       return sound_list[randint(0, len(sound_list) - 1)]   # randomises the list
-        sound_index =- 1
+        sound_index -= 1
         if sound_index < 0:
             sound_index = len(sound_list) - 1
+        print(sound_list[sound_index])
         return sound_list[sound_index]
 
     def kill_sound():
@@ -141,10 +137,9 @@ def sound_board():
     print("sound     thread:", sound.name)
 
     sound_list = make_sound_list(sound_dir)
-    sound_index = len(sound_list) - 1
+    sound_index = len(sound_list)
 
     while len(sound_list) > 0:    # invariant in loop, but proc will exit if empty.
-        # Get spider parms
         if exit_or_sound_ev(): 
             kill_sound()
             break
@@ -152,7 +147,6 @@ def sound_board():
         play_sound.clear()
         sound_file = get_sound_file(sound_list)
 
-        get_spider_parms()         # since they can change outide the program.
         mpg123 = "exec sudo -u pi mpg123 -f " + str(spider_parms["VOLUME"]) \
                 + " " + sound_file
 
@@ -170,10 +164,11 @@ def sound_board():
 
 #---------------------------------------------------------------
 def track_pir():
+    global spider_parms
     def exit_or_edge(edge): # True = exit request, False = edge
         while True:
             if end_request or \
-                    GPIO.wait_for_edge(pir_pin, edge, timeout=1000) \
+                    GPIO.wait_for_edge(pir_pin, edge, timeout=250) \
                             is not None: # we timeout
                 return end_request
 
@@ -190,20 +185,30 @@ def track_pir():
         if GPIO.input(pir_pin): # True = HIGH
             if exit_or_edge(GPIO.FALLING):
                 break
-            green_light.set("off")
             pir_off_event.set()
 
             curr_time = datetime.datetime.now().strftime('%H:%M:%S')
             print(">Falling edge detected on port", str(pir_pin) + ",", curr_time)
+
+            green_light.set("off")
+            led_down(pwm_RED)   # slowest operation
         else:
             if exit_or_edge(GPIO.RISING):
                 break
-            green_light.set("on")
             pir_on_event.set()
-#           play_sound.set()
 
             curr_time = datetime.datetime.now().strftime('%H:%M:%S')
             print(">Rising  edge detected on port", str(pir_pin) + ",", curr_time)
+
+            green_light.set("on")
+
+            # Get spider parms
+            get_spider_parms()         # since they can change outide the program.
+            if spider_parms["ON"]:
+                play_sound.set()
+
+            led_up(pwm_RED)   # slowest operation
+
 
     print("track_pir shutting down")
 
@@ -258,21 +263,21 @@ thr_flasher.start()
 sound = threading.Thread(target=sound_board)
 sound.start()
 
+#-----------------------------
 # Get spider parms
 get_spider_parms()
 
+led_steps = 20
+max_int = spider_parms["MAX_INT"]
+led_intensity = [int((10**(r/led_steps)-1)*max_int/9) for r in range(0,led_steps+1)]
+                   # exponential series [0..100]
+print(led_intensity)
+
+#-----------------------------
+
 try:
     while True:
-        pir_on_event.wait()        # wait for the on event
-        pir_on_event.clear()
-        if spider_parms["ON"]:
-            play_sound.set()
-        led_up(pwm_RED)
-
-        pir_off_event.wait()        # wait for the off event
-        pir_off_event.clear()
-        led_down(pwm_RED)
-#       play_good_night.set()
+        time.sleep(1)
                 
 except KeyboardInterrupt:
     end_request = True
