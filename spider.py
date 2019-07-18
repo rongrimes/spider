@@ -33,26 +33,26 @@ ospid_file = "/home/pi/python/spider/ospid.txt"
 log_file = "/home/pi/python/spider/logfile.txt"
 
 #---------------------------------------------------------------
-def led_setup(pin_no):
+def eyes_setup(pin_no):
     GPIO.setup(pin_no, GPIO.OUT)     # activate output
-    pwm_led = GPIO.PWM(pin_no, 100)  # duty cycle: 100Hz
-    pwm_led.start(0)
-    return pwm_led
+    pwm_eyes = GPIO.PWM(pin_no, 100)  # duty cycle: 100Hz
+    pwm_eyes.start(0)
+    return pwm_eyes
 
-def led_up(pin_no):
+def eyes_up(pin_no):
     global active_RED
 
-    for led_level in led_intensity:
-        pin_no.ChangeDutyCycle(led_level)
+    for eyes_level in eyes_intensity:
+        pin_no.ChangeDutyCycle(eyes_level)
         time.sleep(0.2)
     active_RED = True    # Start single flashing
 
-def led_down(pin_no):
+def eyes_down(pin_no):
     global active_RED
 
     active_RED = False   # Stop single flashing
-    for led_level in led_intensity[::-1]:
-        pin_no.ChangeDutyCycle(led_level)
+    for eyes_level in eyes_intensity[::-1]:
+        pin_no.ChangeDutyCycle(eyes_level)
         time.sleep(0.2)
 
 
@@ -191,7 +191,7 @@ def track_pir():
             print(">Falling edge detected on port", str(pir_pin) + ",", curr_time)
 
             green_light.set("off")
-            led_down(pwm_RED)   # slowest operation
+            eyes_down(pwm_RED)   # slowest operation
         else:
             if exit_or_edge(GPIO.RISING):
                 break
@@ -207,7 +207,7 @@ def track_pir():
             if spider_parms["ON"]:
                 play_sound.set()
 
-            led_up(pwm_RED)   # slowest operation
+            eyes_up(pwm_RED)   # slowest operation
 
 
     print("track_pir shutting down")
@@ -230,7 +230,7 @@ with open(ospid_file, "w") as f:
 GPIO.setmode(GPIO.BCM)
 #GPIO.setwarnings(False)     # Turn off warning Cif we didn't a GPIO cleanup
 
-pwm_RED = led_setup(led_RED)   # activate pwm control
+pwm_RED = eyes_setup(led_RED)   # activate pwm control
 GPIO.setup(led_GRN, GPIO.OUT)  # activate output
 GPIO.setup(led_BLU, GPIO.OUT)  # activate output
 
@@ -267,11 +267,11 @@ sound.start()
 # Get spider parms
 get_spider_parms()
 
-led_steps = 20
+eyes_steps = 20
 max_int = spider_parms["MAX_INT"]
-led_intensity = [((10**(r/led_steps)-1)*max_int/9) for r in range(0,led_steps+1)]
+eyes_intensity = [((10**(r/eyes_steps)-1)*max_int/9) for r in range(0,eyes_steps+1)]
                    # exponential series [0..100]
-print(led_intensity)
+print(eyes_intensity)
 
 #-----------------------------
 
