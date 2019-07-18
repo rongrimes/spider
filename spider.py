@@ -26,7 +26,7 @@ spider_parms = {"ON": False,
         "VOLUME":10000,     # 0 <= VOLUME  <= 32768
         "MAX_INT":25 }      # 0 <= MAX_INT <= 100
 
-sound_dir = "/home/pi/python/spider"        # don't use ~pi form - fails!
+sound_dir = "/home/pi/python/spider/clips"        # don't use ~pi form - fails!
 sound_time = 8    # play sound for * seconds
 
 ospid_file = "/home/pi/python/spider/ospid.txt"
