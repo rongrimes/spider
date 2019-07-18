@@ -26,7 +26,8 @@ spider_parms = {"ON": False,
         "VOLUME":10000,     # 0 <= VOLUME  <= 32768
         "MAX_INT":25 }      # 0 <= MAX_INT <= 100
 
-sound_dir = "/home/pi/python/spider/clips"        # don't use ~pi form - fails!
+#ound_dir = "/home/pi/python/spider/clips"        # don't use ~pi form - fails!
+sound_dir = "clips"                               # don't use ~pi form - fails!
 sound_time = 8    # play sound for * seconds
 
 ospid_file = "/home/pi/python/spider/ospid.txt"
@@ -88,9 +89,8 @@ def get_spider_parms():
         with open(spider_parmfile, "r") as f:
             spider_parms = json.load(f)
     except FileNotFoundError:
-        # use defaults defined above
-        print("spider_parms file not found.")
-        pass
+        # instead, use the defaults defined above
+        print(spider_parmfile, "file not found.")
 
 #---------------------------------------------------------------
 def sound_board():
@@ -99,13 +99,11 @@ def sound_board():
 
     def make_sound_list(sound_dir):
         sound_list = []
-        if os.path.isdir(sound_dir):
-            os.chdir(sound_dir)
-        else:
+        if not os.path.isdir(sound_dir):
             print(sound_dir + ": Sound dir does not exist.")
             return sound_list # dir doesn't exist,
                               #    return empty list = no sound files
-        for file in os.listdir("."):
+        for file in os.listdir(sound_dir):
             _, file_extension = os.path.splitext(file)     # discard filename part
             if  file_extension[1:] in {"mp3"}:    # set of allowed sound files
                 sound_list.append(sound_dir + "/" + file)
