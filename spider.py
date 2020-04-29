@@ -90,6 +90,10 @@ def get_spider_parms():
         print(spider_parmfile, "file not found.")
 
 #---------------------------------------------------------------
+def start_sound():
+    sound = threading.Thread(target=sound_board, args=(spider_parms, ) )
+    sound.start()
+
 def track_pir():
     global spider_parms
     def exit_or_edge(edge): # True = exit request, False = edge
@@ -132,7 +136,7 @@ def track_pir():
             # Get spider parms
             get_spider_parms()         # since they can change outide the program.
             if spider_parms["ON"]:
-                play_sound.set()
+                start_sound()
 
             eyes_up(pwm_RED)   # slowest operation
 
@@ -176,8 +180,6 @@ pir_on_event = threading.Event()   # event set when pir comes on
 pir_on_event.clear()
 pir_off_event = threading.Event()  # event set when pir goes off
 pir_off_event.clear()
-play_sound = threading.Event()  # event to cause sound to fire
-play_sound.clear()
 
 
 #set up threads and start.
@@ -186,9 +188,6 @@ thr_pir.start()
 
 thr_flasher = threading.Thread(target=flash_GB)
 thr_flasher.start()
-
-sound = threading.Thread(target=sound_board, args=(spider_parms, play_sound, end_request, ) )
-sound.start()
 
 #-----------------------------
 # Get spider parms
@@ -215,7 +214,6 @@ print("\nGreen light default restored.")
 # Wait for threads to clean up.
 thr_pir.join()
 thr_flasher.join()
-sound.join()
 
 GPIO.cleanup()           # clean up GPIO
 

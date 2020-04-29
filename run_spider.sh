@@ -6,4 +6,4 @@ echo >> $LOGFILE
 echo "-------------------------" >> $LOGFILE
 date >> $LOGFILE
 echo >> $LOGFILE
-sudo ./spider.py >> $LOGFILE
+sudo ./spider.py & >> $LOGFILE
