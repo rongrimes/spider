@@ -56,19 +56,21 @@ def eyes_down(pin_no):
 
 #---------------------------------------------------------------
 def flash_GB():
+    ''' Flash Green/Blue LEDs in the eyes, and the white string of LEDs.'''
     global active_RED
-    period = 10   # count of seconds during quiet period
+    slow_flash = 5       # seconds between flashes during quiet period
+    fast_flash = 0.5     # seconds between flashes when active_RED is True
 
     print("flash_GB  thread:", thr_flasher.name)
 
     seconds = 0
     while True:
-        time.sleep(2)
+        time.sleep(fast_flash)
 
         if end_request:
             print("flash_GB shutting down")
             break
-        if active_RED or seconds >= period: # Flash every 10 seconds
+        if active_RED or seconds >= slow_flash: # Flash every (slow_flash) seconds
             GPIO.output(led_GRN, GPIO.HIGH)
             GPIO.output(led_BLU, GPIO.HIGH)
             time.sleep(0.1)
@@ -76,7 +78,7 @@ def flash_GB():
             GPIO.output(led_BLU, GPIO.LOW)
             seconds = 0
         else:
-            seconds += 2
+            seconds += fast_flash
 
 #---------------------------------------------------------------
 def get_spider_parms():
@@ -144,6 +146,16 @@ def track_pir():
     print("track_pir shutting down")
 
 #---------------------------------------------------------------------------------
+# Arm signal to end program.
+def handler(signum, frame):
+    ''' A sigint interrupt will get causgt here, and will in effect be the same as
+        getting a ^C at the keyboard.'''
+    raise KeyboardInterrupt
+
+
+
+
+#---------------------------------------------------------------------------------
 # START HERE (Really!)
 # See if we're already running.
 if os.path.isfile(ospid_file):
@@ -159,7 +171,7 @@ with open(ospid_file, "w") as f:
 
 # Initialize the Pi
 GPIO.setmode(GPIO.BCM)
-#GPIO.setwarnings(False)     # Turn off warning Cif we didn't a GPIO cleanup
+GPIO.setwarnings(False)     # Turn off warning if we didn't a GPIO cleanup
 
 pwm_RED = eyes_setup(led_RED)   # activate pwm control
 GPIO.setup(led_GRN, GPIO.OUT)  # activate output
@@ -195,11 +207,13 @@ get_spider_parms()
 
 eyes_steps = 20
 max_int = spider_parms["MAX_INT"]
-eyes_intensity = [((10**(r/eyes_steps)-1)*max_int/9) for r in range(0,eyes_steps+1)]
-                   # exponential series [0..100]
+eyes_intensity = [int(((10**(r/eyes_steps)-1)*max_int/9)+0.99) for r in range(0,eyes_steps+1)]
+                   # exponential series [0..max_intensity]
 print(eyes_intensity)
 
 #-----------------------------
+# Arm sigint to cause proceed to graceful end.
+signal.signal(signal.SIGINT, handler)
 
 try:
     while True:
