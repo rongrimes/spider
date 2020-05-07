@@ -40,18 +40,18 @@ def eyes_setup(pin_no):
 def eyes_up(pin_no):
     global active_RED
 
+    active_RED = True    # Start single flashing
     for eyes_level in eyes_intensity:
         pin_no.ChangeDutyCycle(eyes_level)
         time.sleep(0.2)
-    active_RED = True    # Start single flashing
 
 def eyes_down(pin_no):
     global active_RED
 
-    active_RED = False   # Stop single flashing
     for eyes_level in eyes_intensity[::-1]:
         pin_no.ChangeDutyCycle(eyes_level)
         time.sleep(0.2)
+    active_RED = False   # Stop single flashing
 
 
 #---------------------------------------------------------------
