@@ -17,14 +17,18 @@ As with the ![Chocolate Box News Reader](https://github.com/rongrimes/paxnews) (
 The spider grew "organically" over two semesters of the **Art Metal** class held at ![Danforth Collegiate](https://www.danforthcti.com/) inthebody shop workshop, under the auspices of the ![TDSB Adult Learner Program](https://www.tdsb.on.ca/Adult-Learners/Learn4Life) (Toronto District School Board). [Thanks to Phil and Toby for their guidance.]
 
 ## The Spider
-\** (Image to come)
+![10s video](media/DSC_0330_Trim_SoundOff.mp4)
+
+(Click and review the raw file in a separate window. Further images/video in development).
+
+Note: As the eyes come up, there is loud sounds of screams, burps and other. The sound is randomly chosen from the clips library.
 
 ## General Operations
 The spider sensor resides in the nose and detects people, animals and ghoulies passing nearby. On detection:
 * The eyes transition up to full brightness
 * A short sound clip plays
 
-While there is a stranger detected, the eyes stay on, and they and the body flashes every couple of seconds (in "anger").
+While there is a stranger detected, the eyes stay on, and they and the body flashes twice a second (in "anger").
 When the nose sensor no longer detects a nearby presence, the eyes  transition to "off", and the flashing lights flash only every 10 seconds.
 
 ## Operations
@@ -39,4 +43,4 @@ crontab:
 Ron Grimes  
 Toronto  
 Started:     January 2019  
-Last Update: April 2020  
+Last Update: May 2020  
