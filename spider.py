@@ -222,12 +222,13 @@ try:
 except KeyboardInterrupt:
     end_request = True
 
-green_light.init("mmc0")  # restore to showing "disk access" events.
-print("\nGreen light default restored.")
-
 # Wait for threads to clean up.
 thr_pir.join()
 thr_flasher.join()
+
+# if the msg below appears, then I know the pir and flsher treds have ended.
+green_light.init("mmc0")  # restore to showing "disk access" events.
+print("\nGreen light default restored.")
 
 GPIO.cleanup()           # clean up GPIO
 
