@@ -23,6 +23,9 @@ The spider grew "organically" over two semesters of the **Art Metal** class held
 
 Note: As the eyes come up, there is loud sounds of screams, burps and other. The sound is randomly chosen from the clips library.
 
+### Schematic
+See ![schematic](spider_schematic.pdf)
+
 ## General Operations
 The spider sensor resides in the nose and detects people, animals and ghoulies passing nearby. On detection:
 * The eyes transition up to full brightness
