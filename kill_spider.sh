@@ -11,6 +11,4 @@ else
     echo spider not found.
 fi
 
-if [ -f ~/python/spider/ospid.txt ]; then
-    rm ~/python/spider/ospid.txt
-fi
+rm -f ~/python/spider/ospid.txt                  # if it's not there we don't care.
