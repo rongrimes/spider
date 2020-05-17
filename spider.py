@@ -57,12 +57,13 @@ def eyes_down(pin_no):
 def flash_GB():
     ''' Flash Green/Blue LEDs in the eyes, and the white string of LEDs.'''
     global active_RED
+
     slow_flash = 5       # seconds between flashes during quiet period
     fast_flash = 0.5     # seconds between flashes when active_RED is True
 
     print("flash_GB  thread:", thr_flasher.name)
 
-    seconds = 0
+    seconds = slow_flash            # force a flash on initialization
     while True:
         time.sleep(fast_flash)
 
@@ -98,9 +99,9 @@ def start_sound():
 def track_pir():
     global spider_parms
 
-    wait_on = 5      # wait this long to see it's a real mamalian critter or zombie (not guaranteed)
+    wait_on = 5      # wait this long (seconds) to see it's a real mamalian critter or zombie (not guaranteed)
     pir_timeout = 100  # ms before wait_for_edge is to timeout.
-    timeouts_second = 10  # timeouts pers second: 1 second / pir_timeout
+    max_ticks = wait_on * int(1000 / pir_timeout)  # ticks in (wait_on) seconds.
 
     print("track_pir thread:", thr_pir.name)
     
@@ -111,25 +112,28 @@ def track_pir():
 
     green_light.set("off")
 
-    while end_request == False:
+    while end_request == False:     # not clear if this will ever be False, but the condition is handled in the loop.
         while True:
             if GPIO.wait_for_edge(pir_pin, GPIO.RISING, timeout=pir_timeout) is None:
-                continue       # we get a timeout - let's us handle a ^C
+                # we get a timeout - let's us handle a ^C
+                if end_request:
+                    print("track_pir shutting down")
+                    return
+                continue
 
 #           The PIR lne has risen
-            to_periods = 0
-            while to_periods < (wait_on * timeouts_second):        # now let's wait to see if it drops within wait_on seconds.
+            to_ticks = 0                       # timeout_ticks
+            while to_ticks < max_ticks:        # now let's wait to see if it drops within wait_on seconds.
                 if GPIO.wait_for_edge(pir_pin, GPIO.FALLING, timeout=pir_timeout) is None:   # ie. we timeout
                     if end_request:
                         print("track_pir shutting down")
                         return
-                # timeout, & pir line still high
+                    pass # timeout, & pir line still high, now need to count ticks.
                 else:     # line falls within short period, hence ignore and look for next rising signal.
-#                   time.sleep(0.1)    # needed to stablise FALLING signal
                     break              # and return to while True loop.
 #               Line is high - let's see  if it's for long enough.
-                to_periods +=1 
-            else:
+                to_ticks +=1 
+            else:        # line is high, and we have exceeded max_ticks
                 break    # out of while True loop
 
         curr_time = datetime.datetime.now().strftime('%H:%M:%S')
@@ -138,7 +142,7 @@ def track_pir():
         green_light.set("on")
 
         # Get spider parms
-        get_spider_parms()         # since they can change outide the program.
+        get_spider_parms()         # since they can change outside the program.
         if spider_parms["ON"]:
             start_sound()
 
@@ -168,7 +172,7 @@ def handler(signum, frame):
 
 #---------------------------------------------------------------------------------
 # START HERE (Really!)
-print()                     # new line for when started from run_spider.sh
+print()                     # cosmetic: new line for when started from run_spider.sh
 
 # See if we're already running.
 if os.path.isfile(ospid_file):
@@ -192,7 +196,7 @@ GPIO.setup(led_GRN, GPIO.OUT)  # activate output
 GPIO.setup(led_BLU, GPIO.OUT)  # activate output
 
 # Initialise board green light 
-green_light = Green_Light(Reverse=True)   # required on the Pi zero W
+green_light = Green_Light(Reverse=True)   # "Reverse" required on the Pi zero W
 green_light.set("off")
 
 # Init PIR Control
