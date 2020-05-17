@@ -28,7 +28,6 @@ spider_parms = {"ON": False,
         "MAX_INT":25 }      # 0 <= MAX_INT <= 100
 
 ospid_file = "/home/pi/python/spider/ospid.txt"
-log_file = "/home/pi/python/spider/logfile.txt"
 
 #---------------------------------------------------------------
 def eyes_setup(pin_no):
@@ -98,73 +97,88 @@ def start_sound():
 
 def track_pir():
     global spider_parms
-    def exit_or_edge(edge): # True = exit request, False = edge
-        while True:
-            if end_request or \
-                    GPIO.wait_for_edge(pir_pin, edge, timeout=250) \
-                            is not None: # we timeout
-                return end_request
+
+    wait_on = 5      # wait this long to see it's a real mamalian critter or zombie (not guaranteed)
+    pir_timeout = 100  # ms before wait_for_edge is to timeout.
+    timeouts_second = 10  # timeouts pers second: 1 second / pir_timeout
 
     print("track_pir thread:", thr_pir.name)
     
-    # wait until PIR drops
+    # wait until PIR drops during initialization - may/may not be high
     while GPIO.input(pir_pin):
         time.sleep(1)
 #   print("GPIO(PIR): "+ str(bool(GPIO.input(pir_pin)))) # True = HIGH
 
     green_light.set("off")
-    while True:
-#       print(GPIO.input(pir_pin)) # True = HIGH
-        if GPIO.input(pir_pin): # True = HIGH
-            if exit_or_edge(GPIO.FALLING):
-                break
-            pir_off_event.set()
 
-            curr_time = datetime.datetime.now().strftime('%H:%M:%S')
-            print(">Falling edge detected on port", str(pir_pin) + ",", curr_time)
+    while end_request == False:
+        while True:
+            if GPIO.wait_for_edge(pir_pin, GPIO.RISING, timeout=pir_timeout) is None:
+                continue       # we get a timeout - let's us handle a ^C
 
-            green_light.set("off")
-            eyes_down(pwm_RED)   # slowest operation
+#           The PIR lne has risen
+            to_periods = 0
+            while to_periods < (wait_on * timeouts_second):        # now let's wait to see if it drops within wait_on seconds.
+                if GPIO.wait_for_edge(pir_pin, GPIO.FALLING, timeout=pir_timeout) is None:   # ie. we timeout
+                    if end_request:
+                        print("track_pir shutting down")
+                        return
+                # timeout, & pir line still high
+                else:     # line falls within short period, hence ignore and look for next rising signal.
+#                   time.sleep(0.1)    # needed to stablise FALLING signal
+                    break              # and return to while True loop.
+#               Line is high - let's see  if it's for long enough.
+                to_periods +=1 
+            else:
+                break    # out of while True loop
+
+        curr_time = datetime.datetime.now().strftime('%H:%M:%S')
+        print(">Rising  edge detected on port", str(pir_pin) + ",", curr_time)
+
+        green_light.set("on")
+
+        # Get spider parms
+        get_spider_parms()         # since they can change outide the program.
+        if spider_parms["ON"]:
+            start_sound()
+
+        eyes_up(pwm_RED)   # slow operation
+
+        while end_request == False:
+            if GPIO.wait_for_edge(pir_pin, GPIO.FALLING, timeout=pir_timeout) is None:
+                continue       # let's us handle a ^C
+            break
         else:
-            if exit_or_edge(GPIO.RISING):
-                break
-            pir_on_event.set()
+            print("track_pir shutting down")
+            return
 
-            curr_time = datetime.datetime.now().strftime('%H:%M:%S')
-            print(">Rising  edge detected on port", str(pir_pin) + ",", curr_time)
+        GPIO.output(led_BLU, GPIO.LOW)
+        curr_time = datetime.datetime.now().strftime('%H:%M:%S')
+        print(">Falling edge detected on port", str(pir_pin) + ",", curr_time)
+        green_light.set("off")
 
-            green_light.set("on")
-
-            # Get spider parms
-            get_spider_parms()         # since they can change outide the program.
-            if spider_parms["ON"]:
-                start_sound()
-
-            eyes_up(pwm_RED)   # slowest operation
-
-
-    print("track_pir shutting down")
+        eyes_down(pwm_RED)   # slow operation
 
 #---------------------------------------------------------------------------------
 # Arm signal to end program.
 def handler(signum, frame):
-    ''' A sigint interrupt will get causgt here, and will in effect be the same as
+    ''' A sigint interrupt will get caught here, and will in effect be the same as
         getting a ^C at the keyboard.'''
     raise KeyboardInterrupt
 
-
-
-
 #---------------------------------------------------------------------------------
 # START HERE (Really!)
+print()                     # new line for when started from run_spider.sh
+
 # See if we're already running.
 if os.path.isfile(ospid_file):
     print("spider.py is already running.\nIf this message in error,",
             "remove the file:", ospid_file)
-    with open(log_file, "w") as f:
-        f.write("spider.py is already running.\nIf this message in error," \
-                "remove the file:" + ospid_file + "\n") 
     exit()
+
+# We store the process id here - used in 2 places:
+# 1. We check in spider to see if we're already running. (code above)
+# 2. Used in the kill_spider.sh  script to send a signint to the program.
 
 with open(ospid_file, "w") as f:
     f.write(str(os.getpid()))
@@ -188,10 +202,10 @@ active_RED = False
 end_request = False   # use to end the threads.
 
 # Init thread events
-pir_on_event = threading.Event()   # event set when pir comes on
-pir_on_event.clear()
-pir_off_event = threading.Event()  # event set when pir goes off
-pir_off_event.clear()
+#pir_on_event = threading.Event()   # event set when pir comes on
+#pir_on_event.clear()
+#pir_off_event = threading.Event()  # event set when pir goes off
+#pir_off_event.clear()
 
 
 #set up threads and start.
@@ -234,5 +248,3 @@ GPIO.cleanup()           # clean up GPIO
 
 if os.path.isfile(ospid_file):
     os.remove(ospid_file)
-if os.path.isfile(log_file):
-    os.remove(log_file)
