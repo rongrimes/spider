@@ -235,7 +235,7 @@ signal.signal(signal.SIGINT, handler)
 
 try:
     while True:
-        time.sleep(1)
+        time.sleep(0.1)
                 
 except KeyboardInterrupt:
     end_request = True
