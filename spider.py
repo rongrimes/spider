@@ -39,18 +39,20 @@ def eyes_setup(pin_no):
 def eyes_up(pin_no):
     global active_RED
 
-    active_RED = True    # Start single flashing
+    delay = 0.5
     for eyes_level in eyes_intensity:
         pin_no.ChangeDutyCycle(eyes_level)
-        time.sleep(0.2)
+        time.sleep(delay)
+    active_RED = True    # Start quick flashing
 
 def eyes_down(pin_no):
     global active_RED
 
+    delay = 0.5
+    active_RED = False   # Stop quick flashing
     for eyes_level in eyes_intensity[::-1]:
         pin_no.ChangeDutyCycle(eyes_level)
-        time.sleep(0.2)
-    active_RED = False   # Stop single flashing
+        time.sleep(delay)
 
 
 #---------------------------------------------------------------
@@ -223,7 +225,7 @@ thr_flasher.start()
 # Get spider parms
 get_spider_parms()
 
-eyes_steps = 20
+eyes_steps = 16
 max_int = spider_parms["MAX_INT"]
 eyes_intensity = [int(((10**(r/eyes_steps)-1)*max_int/9)+0.99) for r in range(0,eyes_steps+1)]
                    # exponential series [0..max_intensity]
