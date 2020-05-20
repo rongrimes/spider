@@ -4,9 +4,10 @@ e=`ps aux | grep spider`
 
 if [ "$(grep -c python3 <<< $e)" -gt 0 ]; then
     echo Kill spider.
+    ospid=`cat /home/pi/python/spider/ospid.txt`
+    sudo kill -s sigint $ospid
 
-    sudo kill -s sigint `cat /home/pi/python/spider/ospid.txt`
-    sleep 4
+    tail --pid=$ospid -f /dev/null              # runs until $ospid goes away
 else
     echo spider not found.
 fi
