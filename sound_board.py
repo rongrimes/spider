@@ -1,35 +1,61 @@
 #!/usr/bin/python3
+import json
 import os
 import subprocess
 from random import randint
+from time import sleep
 
-sound_dir = "clips"                               # don't use ~pi form - fails!
+class My_globals:
+    spider_parmfile = "spiderparms.json"
+    spider_parms = {"ON": False,
+            "VOLUME":10000,     # 0 <= VOLUME  <= 32768
+            "MAX_INT":25 }      # 0 <= MAX_INT <= 100
 
-def sound_board(spider_parms):
-    def make_sound_list(sound_dir):
-        sound_list = []
-        if not os.path.isdir(sound_dir):
-            print(sound_dir + ": Sound dir does not exist.")
-            return sound_list # dir doesn't exist,
-                              #    return empty list = no sound files
-        for file in os.listdir(sound_dir):
-            _, file_extension = os.path.splitext(file)     # discard filename part
-            if  file_extension[1:] in {"mp3"}:    # set of allowed sound files
-                sound_list.append(sound_dir + "/" + file)
-#       print("Sound list: ", sound_list)
-        return sound_list
+    def __init__(self):
+        self.animation_active = False
+        self.get_spider_parms() 
 
-    def get_sound_file(sound_list):
-        return sound_list[randint(0, len(sound_list) - 1)]   # randomises the list
+    def get_spider_parms(self):
+        try:
+            with open(self.spider_parmfile, "r") as f:
+                self.spider_parms = json.load(f)
+        except FileNotFoundError:
+            # instead, use the defaults defined above
+            self.spider_parms = self.spider_parms
+            print(spider_parmfile, ": file not found.")
 
 #----------------------------------------------------------------------------------------
-#   print("sound     thread:", sound.name)
-    sound_list = make_sound_list(sound_dir)
-    sound_file = get_sound_file(sound_list)
-    print(" {}".format(sound_file))
+class Sound_board:
+    sound_dir = "clips"                               # don't use ~pi form - fails!
+    last_clip = -1
 
-    mpg123 = "exec sudo -u pi mpg123 -q -f " + str(spider_parms["VOLUME"]) \
-            + " " + sound_file
+    def __init__(self):
+        self.sound_list = []
+        if not os.path.isdir(self.sound_dir):
+            print(self.sound_dir + ": Sound dir does not exist.")
+            return self.sound_list # dir doesn't exist,
+                              #    return empty list = no sound files
+        for file in os.listdir(self.sound_dir):
+            _, file_extension = os.path.splitext(file)     # discard filename part
+            if  file_extension[1:] in {"mp3"}:    # set of allowed sound files
+                self.sound_list.append(self.sound_dir + "/" + file)
+        print("Sound list: ", self.sound_list)
 
-    pid = subprocess.Popen(mpg123, stdout=subprocess.PIPE, shell=True,
-            preexec_fn=os.setsid)
+    def _get_sound_index(self):
+        self.last_clip += 1
+        if self.last_clip >= len(self.sound_list):
+            self.last_clip = 0
+        return self.last_clip
+
+    def play_sound(self, my_globals):
+        sound_file = self.sound_list[self._get_sound_index()]
+        print(" {}".format(sound_file))
+
+        mpg123 = "exec sudo -u pi mpg123 -q -f " + str(my_globals.spider_parms["VOLUME"]) \
+                + " " + sound_file
+
+        while my_globals.animation_active:
+            popen = subprocess.Popen(mpg123, stdout=subprocess.PIPE, shell=True,
+                preexec_fn=os.setsid)
+            popen.wait()
+            sleep(3)

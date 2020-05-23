@@ -2,15 +2,12 @@
 ##!env python3
 
 import datetime
-import json
 import os
 import RPi.GPIO as GPIO
 import signal
-import subprocess
 import threading
 import time
 from sys import exit
-#from random import randint
 
 # Local imports
 from green_light import *
@@ -22,11 +19,6 @@ led_RED = 26
 led_GRN = 6
 led_BLU = 13
 
-spider_parmfile = "spiderparms.json"
-spider_parms = {"ON": False,
-        "VOLUME":10000,     # 0 <= VOLUME  <= 32768
-        "MAX_INT":25 }      # 0 <= MAX_INT <= 100
-
 ospid_file = "/home/pi/python/spider/ospid.txt"
 
 #---------------------------------------------------------------
@@ -37,19 +29,13 @@ def eyes_setup(pin_no):
     return pwm_eyes
 
 def eyes_up(pin_no):
-    global active_RED
-
-    delay = 0.5
+    delay = 0.5   # seconds
     for eyes_level in eyes_intensity:
         pin_no.ChangeDutyCycle(eyes_level)
         time.sleep(delay)
-    active_RED = True    # Start quick flashing
 
 def eyes_down(pin_no):
-    global active_RED
-
-    delay = 0.5
-    active_RED = False   # Stop quick flashing
+    delay = 0.5   # seconds
     for eyes_level in eyes_intensity[::-1]:
         pin_no.ChangeDutyCycle(eyes_level)
         time.sleep(delay)
@@ -58,10 +44,10 @@ def eyes_down(pin_no):
 #---------------------------------------------------------------
 def flash_GB():
     ''' Flash Green/Blue LEDs in the eyes, and the white string of LEDs.'''
-    global active_RED
+    global animation_active
 
     slow_flash = 5       # seconds between flashes during quiet period
-    fast_flash = 0.5     # seconds between flashes when active_RED is True
+    fast_flash = 0.5     # seconds between flashes when animation_active is True
 
     print("flash_GB  thread:", thr_flasher.name)
 
@@ -72,7 +58,7 @@ def flash_GB():
         if end_request:
             print("flash_GB shutting down")
             break
-        if active_RED or seconds >= slow_flash: # Flash every (slow_flash) seconds
+        if my_globals.animation_active or seconds >= slow_flash: # Flash every (slow_flash) seconds
             GPIO.output(led_GRN, GPIO.HIGH)
             GPIO.output(led_BLU, GPIO.HIGH)
             time.sleep(0.1)
@@ -83,24 +69,12 @@ def flash_GB():
             seconds += fast_flash
 
 #---------------------------------------------------------------
-def get_spider_parms():
-    global spider_parms
-
-    try:
-        with open(spider_parmfile, "r") as f:
-            spider_parms = json.load(f)
-    except FileNotFoundError:
-        # instead, use the defaults defined above
-        print(spider_parmfile, "file not found.")
-
-#---------------------------------------------------------------
 def start_sound():
-    sound = threading.Thread(target=sound_board, args=(spider_parms, ) )
+    sound = threading.Thread(target=sound_board.play_sound, args=(my_globals, ))
     sound.start()
 
+#---------------------------------------------------------------
 def track_pir():
-    global spider_parms
-
     wait_on = 5      # wait this long (seconds) to see it's a real mamalian critter or zombie (not guaranteed)
     pir_timeout = 100  # ms before wait_for_edge is to timeout.
     max_ticks = wait_on * int(1000 / pir_timeout)  # ticks in (wait_on) seconds.
@@ -123,7 +97,8 @@ def track_pir():
                     return
                 continue
 
-#           The PIR lne has risen
+#           The PIR line has risen
+            print("/", end="", flush=True)
             to_ticks = 0                       # timeout_ticks
             while to_ticks < max_ticks:        # now let's wait to see if it drops within wait_on seconds.
                 if GPIO.wait_for_edge(pir_pin, GPIO.FALLING, timeout=pir_timeout) is None:   # ie. we timeout
@@ -137,15 +112,18 @@ def track_pir():
                 to_ticks +=1 
             else:        # line is high, and we have exceeded max_ticks
                 break    # out of while True loop
+            print("\\", end="", flush=True)
 
         curr_time = datetime.datetime.now().strftime('%H:%M:%S')
-        print(">Rising  edge detected on port", str(pir_pin) + ",", curr_time)
+        print("\n>Rising  edge detected on port", str(pir_pin) + ",", curr_time)
 
         green_light.set("on")
 
         # Get spider parms
-        get_spider_parms()         # since they can change outside the program.
-        if spider_parms["ON"]:
+        my_globals.get_spider_parms()         # since they can change by s_parms.py outside the program.
+        my_globals.animation_active = True    # Enable sound and start quick flashing
+
+        if my_globals.spider_parms["ON"]:
             start_sound()
 
         eyes_up(pwm_RED)   # slow operation
@@ -163,6 +141,7 @@ def track_pir():
         print(">Falling edge detected on port", str(pir_pin) + ",", curr_time)
         green_light.set("off")
 
+        my_globals.animation_active = False   # Disable sound and stop quick flashing
         eyes_down(pwm_RED)   # slow operation
 
 #---------------------------------------------------------------------------------
@@ -189,6 +168,11 @@ if os.path.isfile(ospid_file):
 with open(ospid_file, "w") as f:
     f.write(str(os.getpid()))
 
+# Set up globals and get spider_parms
+my_globals = My_globals()
+my_globals.animation_active = False
+end_request = False   # use to end the threads.
+
 # Initialize the Pi
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)     # Turn off warning if we didn't a GPIO cleanup
@@ -204,15 +188,8 @@ green_light.set("off")
 # Init PIR Control
 GPIO.setup(pir_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # activate input
 
-active_RED = False
-end_request = False   # use to end the threads.
-
-# Init thread events
-#pir_on_event = threading.Event()   # event set when pir comes on
-#pir_on_event.clear()
-#pir_off_event = threading.Event()  # event set when pir goes off
-#pir_off_event.clear()
-
+# Initialize sound board files
+sound_board = Sound_board()
 
 #set up threads and start.
 thr_pir = threading.Thread(target=track_pir)   # tracks the PIR
@@ -221,12 +198,9 @@ thr_pir.start()
 thr_flasher = threading.Thread(target=flash_GB)
 thr_flasher.start()
 
-#-----------------------------
-# Get spider parms
-get_spider_parms()
-
+#Generate eye intensities
 eyes_steps = 16
-max_int = spider_parms["MAX_INT"]
+max_int = my_globals.spider_parms["MAX_INT"]
 eyes_intensity = [int(((10**(r/eyes_steps)-1)*max_int/9)+0.99) for r in range(0,eyes_steps+1)]
                    # exponential series [0..max_intensity]
 print(eyes_intensity)
@@ -246,7 +220,7 @@ except KeyboardInterrupt:
 thr_pir.join()
 thr_flasher.join()
 
-# if the msg below appears, then I know the pir and flsher treds have ended.
+# if the msg below appears, then I know the pir and flasher threads have ended.
 green_light.init("mmc0")  # restore to showing "disk access" events.
 print("\nGreen light default restored.")
 
