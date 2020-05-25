@@ -14,7 +14,7 @@ As with the ![Chocolate Box News Reader](https://github.com/rongrimes/paxnews) (
 * LED string (white)
 
 ## Spider Construction
-The spider grew "organically" over two semesters of the **Art Metal** class held at ![Danforth Collegiate](https://www.danforthcti.com/) inthebody shop workshop, under the auspices of the ![TDSB Adult Learner Program](https://www.tdsb.on.ca/Adult-Learners/Learn4Life) (Toronto District School Board). [Thanks to Phil and Toby for their guidance.]
+The spider grew "organically" over two semesters of the **Art Metal** class held at ![Danforth Collegiate](https://www.danforthcti.com/) in the body shop workshop, under the auspices of the ![TDSB Adult Learner Program](https://www.tdsb.on.ca/Adult-Learners/Learn4Life) (Toronto District School Board). [Thanks to Phil and Toby for their guidance.]
 
 ## The Spider
 ![10s video](media/DSC_0330_Trim_SoundOff.mp4)
@@ -24,7 +24,7 @@ The spider grew "organically" over two semesters of the **Art Metal** class held
 Note: As the eyes come up, there is loud sounds of screams, burps and other. The sound is randomly chosen from the clips library.
 
 ### Schematic
-See ![schematic](spider_schematic.pdf)
+See ![schematic](fritzing/spider_schematic.pdf)
 
 ## General Operations
 The spider sensor resides in the nose and detects people, animals and ghoulies passing nearby. On detection:
