@@ -13,6 +13,7 @@ class My_globals:
 
     def __init__(self):
         self.animation_active = False
+        self.end_request      = False
         self.get_spider_parms() 
 
     def get_spider_parms(self):
@@ -27,7 +28,6 @@ class My_globals:
 #----------------------------------------------------------------------------------------
 class Sound_board:
     sound_dir = "clips"                               # don't use ~pi form - fails!
-    last_clip = -1
 
     def __init__(self):
         self.sound_list = []
@@ -40,6 +40,7 @@ class Sound_board:
             if  file_extension[1:] in {"mp3"}:    # set of allowed sound files
                 self.sound_list.append(self.sound_dir + "/" + file)
         print("Sound list: ", self.sound_list)
+        self.last_clip = randint(1, len(self.sound_list)) - 2   # (index of a random clip) - 2
 
     def _get_sound_index(self):
         self.last_clip += 1
@@ -54,7 +55,7 @@ class Sound_board:
         mpg123 = "exec sudo -u pi mpg123 -q -f " + str(my_globals.spider_parms["VOLUME"]) \
                 + " " + sound_file
 
-        while my_globals.animation_active:
+        while my_globals.animation_active and not my_globals.end_request:
             popen = subprocess.Popen(mpg123, stdout=subprocess.PIPE, shell=True,
                 preexec_fn=os.setsid)
             popen.wait()

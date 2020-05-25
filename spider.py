@@ -44,8 +44,6 @@ def eyes_down(pin_no):
 #---------------------------------------------------------------
 def flash_GB():
     ''' Flash Green/Blue LEDs in the eyes, and the white string of LEDs.'''
-    global animation_active
-
     slow_flash = 5       # seconds between flashes during quiet period
     fast_flash = 0.5     # seconds between flashes when animation_active is True
 
@@ -55,7 +53,7 @@ def flash_GB():
     while True:
         time.sleep(fast_flash)
 
-        if end_request:
+        if my_globals.end_request:
             print("flash_GB shutting down")
             break
         if my_globals.animation_active or seconds >= slow_flash: # Flash every (slow_flash) seconds
@@ -67,11 +65,6 @@ def flash_GB():
             seconds = 0
         else:
             seconds += fast_flash
-
-#---------------------------------------------------------------
-def start_sound():
-    sound = threading.Thread(target=sound_board.play_sound, args=(my_globals, ))
-    sound.start()
 
 #---------------------------------------------------------------
 def track_pir():
@@ -88,11 +81,11 @@ def track_pir():
 
     green_light.set("off")
 
-    while end_request == False:     # not clear if this will ever be False, but the condition is handled in the loop.
+    while my_globals.end_request == False:     # not clear if this will ever be False, but the condition is handled in the loop.
         while True:
             if GPIO.wait_for_edge(pir_pin, GPIO.RISING, timeout=pir_timeout) is None:
                 # we get a timeout - let's us handle a ^C
-                if end_request:
+                if my_globals.end_request:
                     print("track_pir shutting down")
                     return
                 continue
@@ -102,7 +95,7 @@ def track_pir():
             to_ticks = 0                       # timeout_ticks
             while to_ticks < max_ticks:        # now let's wait to see if it drops within wait_on seconds.
                 if GPIO.wait_for_edge(pir_pin, GPIO.FALLING, timeout=pir_timeout) is None:   # ie. we timeout
-                    if end_request:
+                    if my_globals.end_request:
                         print("track_pir shutting down")
                         return
                     pass # timeout, & pir line still high, now need to count ticks.
@@ -124,11 +117,12 @@ def track_pir():
         my_globals.animation_active = True    # Enable sound and start quick flashing
 
         if my_globals.spider_parms["ON"]:
-            start_sound()
+            sound = threading.Thread(target=sound_board.play_sound, args=(my_globals, ))
+            sound.start()
 
         eyes_up(pwm_RED)   # slow operation
 
-        while end_request == False:
+        while my_globals.end_request == False:
             if GPIO.wait_for_edge(pir_pin, GPIO.FALLING, timeout=pir_timeout) is None:
                 continue       # let's us handle a ^C
             break
@@ -170,8 +164,8 @@ with open(ospid_file, "w") as f:
 
 # Set up globals and get spider_parms
 my_globals = My_globals()
-my_globals.animation_active = False
-end_request = False   # use to end the threads.
+my_globals.animation_active = False   # (also) initialized in My_globals.__init__
+my_globals.end_request      = False   # use to end the threads.
 
 # Initialize the Pi
 GPIO.setmode(GPIO.BCM)
@@ -214,7 +208,7 @@ try:
         time.sleep(0.1)
                 
 except KeyboardInterrupt:
-    end_request = True
+    my_globals.end_request = True
 
 # Wait for threads to clean up.
 thr_pir.join()
