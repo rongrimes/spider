@@ -68,7 +68,7 @@ def flash_GB():
 
 #---------------------------------------------------------------
 def track_pir():
-    wait_on = 5      # wait this long (seconds) to see it's a real mamalian critter or zombie (not guaranteed)
+    wait_on = 6        # wait this long (seconds) to see it's a real mamalian critter or zombie (not guaranteed)
     pir_timeout = 100  # ms before wait_for_edge is to timeout.
     max_ticks = wait_on * int(1000 / pir_timeout)  # ticks in (wait_on) seconds.
 
@@ -91,7 +91,9 @@ def track_pir():
                 continue
 
 #           The PIR line has risen
-            print("/", end="", flush=True)
+            green_light.set("on")
+            print("/ \b", end="", flush=True)
+
             to_ticks = 0                       # timeout_ticks
             while to_ticks < max_ticks:        # now let's wait to see if it drops within wait_on seconds.
                 if GPIO.wait_for_edge(pir_pin, GPIO.FALLING, timeout=pir_timeout) is None:   # ie. we timeout
@@ -100,12 +102,18 @@ def track_pir():
                         return
                     pass # timeout, & pir line still high, now need to count ticks.
                 else:     # line falls within short period, hence ignore and look for next rising signal.
-                    break              # and return to while True loop.
+                    break              # print report and and return to while True loop.
 #               Line is high - let's see  if it's for long enough.
                 to_ticks +=1 
             else:        # line is high, and we have exceeded max_ticks
                 break    # out of while True loop
-            print("\\", end="", flush=True)
+
+#           Line is down, but we are less than the ticks timeout period - hence don't activate the spider.
+            green_light.set("off")
+            report = "\\"
+            if to_ticks < 100:
+                report += "{0:02d}\b\b".format(to_ticks)
+            print(report, end="", flush=True)
 
         curr_time = datetime.datetime.now().strftime('%H:%M:%S')
         print("\n>Rising  edge detected on port", str(pir_pin) + ",", curr_time)
