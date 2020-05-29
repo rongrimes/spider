@@ -68,9 +68,13 @@ def flash_GB():
 
 #---------------------------------------------------------------
 def track_pir():
-    wait_on = 6        # wait this long (seconds) to see it's a real mamalian critter or zombie (not guaranteed)
+    def tick_str(ticks):
+        ticks = "{}".format(ticks)
+        return ticks + len(ticks) * "\b"          # add equiv # of backspaces to back space over the number.
+
+    wait_on = 6.5      # wait this long (seconds) to see it's a real mamalian critter or zombie (not guaranteed)
     pir_timeout = 100  # ms before wait_for_edge is to timeout.
-    max_ticks = wait_on * int(1000 / pir_timeout)  # ticks in (wait_on) seconds.
+    max_ticks = int(wait_on * 1000 / pir_timeout)  # ticks in (wait_on) seconds.
 
     print("track_pir thread:", thr_pir.name)
     
@@ -110,9 +114,7 @@ def track_pir():
 
 #           Line is down, but we are less than the ticks timeout period - hence don't activate the spider.
             green_light.set("off")
-            report = "\\"
-            if to_ticks < 100:
-                report += "{0:02d}\b\b".format(to_ticks)
+            report = "\\" + tick_str(to_ticks)
             print(report, end="", flush=True)
 
         curr_time = datetime.datetime.now().strftime('%H:%M:%S')
