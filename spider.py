@@ -19,6 +19,8 @@ led_RED = 26
 led_GRN = 6
 led_BLU = 13
 
+wait_change = 0.1    # time to wait for pir to change before looking again.
+
 ospid_file = "/home/pi/python/spider/ospid.txt"
 
 #---------------------------------------------------------------
@@ -80,39 +82,42 @@ def track_pir():
     
     # wait until PIR drops during initialization - may/may not be high
     while GPIO.input(pir_pin):
-        time.sleep(1)
-#   print("GPIO(PIR): "+ str(bool(GPIO.input(pir_pin)))) # True = HIGH
+        time.sleep(wait_change)
 
     green_light.set("off")
 
-    while my_globals.end_request == False:     # not clear if this will ever be False, but the condition is handled in the loop.
+    while True:     # main loop - only exitged with a "return" statement.
         while True:
-            if GPIO.wait_for_edge(pir_pin, GPIO.RISING, timeout=pir_timeout) is None:
-                # we get a timeout - let's us handle a ^C
-                if my_globals.end_request:
-                    print("track_pir shutting down")
-                    return
+            if my_globals.end_request:
+                print("track_pir shutting down")
+                return
+
+            if GPIO.input(pir_pin):
+                pass       # carry on and see if it's a false positive
+            else:
+                time.sleep(wait_change)     # still quiet
                 continue
 
-#           The PIR line has risen
+#           The PIR line is high: check for a false positive
             green_light.set("on")
             print("/ \b", end="", flush=True)
 
             to_ticks = 0                       # timeout_ticks
             while to_ticks < max_ticks:        # now let's wait to see if it drops within wait_on seconds.
-                if GPIO.wait_for_edge(pir_pin, GPIO.FALLING, timeout=pir_timeout) is None:   # ie. we timeout
-                    if my_globals.end_request:
-                        print("track_pir shutting down")
-                        return
-                    pass # timeout, & pir line still high, now need to count ticks.
-                else:     # line falls within short period, hence ignore and look for next rising signal.
+                if my_globals.end_request:
+                    print("track_pir shutting down")
+                    return
+
+                time.sleep(wait_change)
+                if GPIO.input(pir_pin):
+                    to_ticks +=1  # pir line still high, increment ticks.
+                else:     # line falls within short period... it's a false positive
                     break              # print report and and return to while True loop.
-#               Line is high - let's see  if it's for long enough.
-                to_ticks +=1 
-            else:        # line is high, and we have exceeded max_ticks
+
+            else:        # line is high, and we have exceeded max_ticks - there is a critter out there.
                 break    # out of while True loop
 
-#           Line is down, but we are less than the ticks timeout period - hence don't activate the spider.
+#           pir line is down, but we are less than the ticks timeout period - hence don't activate the spider.
             green_light.set("off")
             report = "\\" + tick_str(to_ticks)
             print(report, end="", flush=True)
@@ -133,9 +138,10 @@ def track_pir():
         eyes_up(pwm_RED)   # slow operation
 
         while my_globals.end_request == False:
-            if GPIO.wait_for_edge(pir_pin, GPIO.FALLING, timeout=pir_timeout) is None:
-                continue       # let's us handle a ^C
-            break
+            if GPIO.input(pir_pin):
+                time.sleep(wait_change)    # still high, continue animation
+            else:
+                break                      # pir dropped. Shutdown animation.
         else:
             print("track_pir shutting down")
             return
