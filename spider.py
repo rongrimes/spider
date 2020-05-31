@@ -74,9 +74,8 @@ def track_pir():
         ticks = "{}".format(ticks)
         return ticks + len(ticks) * "\b"          # add equiv # of backspaces to back space over the number.
 
-    wait_on = 6.5      # wait this long (seconds) to see it's a real mamalian critter or zombie (not guaranteed)
-    pir_timeout = 100  # ms before wait_for_edge is to timeout.
-    max_ticks = int(wait_on * 1000 / pir_timeout)  # ticks in (wait_on) seconds.
+    wait_on = 7        # wait this long (seconds) to see it's a real mamalian critter or zombie (not guaranteed)
+    max_ticks = int(wait_on * 1 / wait_change)  # ticks in (wait_on) seconds.
 
     print("track_pir thread:", thr_pir.name)
     
@@ -86,21 +85,24 @@ def track_pir():
 
     green_light.set("off")
 
-    while True:     # main loop - only exitged with a "return" statement.
+    while True:     # main loop - only exited with a "return" statement.
+        # Get spider parms
+        my_globals.get_spider_parms()         # since they can change by s_parms.py outside the program.
+
         while True:
             if my_globals.end_request:
                 print("track_pir shutting down")
                 return
 
-            if GPIO.input(pir_pin):
-                pass       # carry on and see if it's a false positive
-            else:
+            # Wait for pir line to go high
+            if GPIO.input(pir_pin) == False:
                 time.sleep(wait_change)     # still quiet
                 continue
 
-#           The PIR line is high: check for a false positive
+#           The PIR line is now high: check for a false positive
             green_light.set("on")
             print("/ \b", end="", flush=True)
+            my_globals.animation_active = True    # Enable sound and start quick flashing
 
             to_ticks = 0                       # timeout_ticks
             while to_ticks < max_ticks:        # now let's wait to see if it drops within wait_on seconds.
@@ -121,15 +123,10 @@ def track_pir():
             green_light.set("off")
             report = "\\" + tick_str(to_ticks)
             print(report, end="", flush=True)
+            my_globals.animation_active = False    # disable quick flashing
 
         curr_time = datetime.datetime.now().strftime('%H:%M:%S')
         print("\n>Rising  edge detected on port", str(pir_pin) + ",", curr_time)
-
-        green_light.set("on")
-
-        # Get spider parms
-        my_globals.get_spider_parms()         # since they can change by s_parms.py outside the program.
-        my_globals.animation_active = True    # Enable sound and start quick flashing
 
         if my_globals.spider_parms["ON"]:
             sound = threading.Thread(target=sound_board.play_sound, args=(my_globals, ))
@@ -146,10 +143,9 @@ def track_pir():
             print("track_pir shutting down")
             return
 
-        GPIO.output(led_BLU, GPIO.LOW)
+        green_light.set("off")
         curr_time = datetime.datetime.now().strftime('%H:%M:%S')
         print(">Falling edge detected on port", str(pir_pin) + ",", curr_time)
-        green_light.set("off")
 
         my_globals.animation_active = False   # Disable sound and stop quick flashing
         eyes_down(pwm_RED)   # slow operation
