@@ -209,6 +209,8 @@ eyes_steps = 16
 max_int = my_globals.spider_parms["MAX_INT"]
 eyes_intensity = [int(((10**(r/eyes_steps)-1)*max_int/9)+0.99) for r in range(0,eyes_steps+1)]
                    # exponential series [0..max_intensity]
+eyes_intensity = sorted(list(set(eyes_intensity)))            # convert list to set to list to remove duplicates.
+                                                              # sort: since the set returns in undetermined order.
 print(eyes_intensity)
 
 #-----------------------------
