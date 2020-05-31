@@ -38,7 +38,7 @@ When the nose sensor no longer detects a nearby presence, the eyes  transition t
 Start spider with:  
 crontab:
 ```
-@reboot rm /home/pi/python/spider/ospid.txt # JOB_ID_1; Remove pid file to prevent mulitiple incursions of spider.
+@reboot rm -f /home/pi/python/spider/ospid.txt # JOB_ID_1; Remove pid file to prevent mulitiple incursions of spider.
 @reboot sleep 2 && ~pi/run_spider.sh # JOB_ID_2; start spider.
 ```
 
