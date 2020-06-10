@@ -1,4 +1,4 @@
-# spider
+# Heavy Metal Hollywood Spider
 The **Spider** project is a fusion of two current interests:
 * Art Metal class
 * Raspberry Pi and related hardware software.
@@ -39,6 +39,10 @@ Start spider with _crontab_:
 @reboot rm -f /home/pi/python/spider/ospid.txt # JOB_ID_1; Remove pid file to prevent mulitiple incursions of spider.
 @reboot sleep 2 && ~pi/run_spider.sh # JOB_ID_2; start spider.
 ```
+
+## FAQ
+Q: Why _Hollywood_?  
+A: Well, we... the spider and me... live on Hollywood Cres.
 
 ***
 Ron Grimes  
