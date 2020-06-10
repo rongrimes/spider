@@ -1,7 +1,7 @@
 # spider
 The **Spider** project is a fusion of two current interests:
 * Art Metal class
-* Raspberry PI and related hardware software.
+* Raspberry Pi and related hardware software.
 
 As with the ![Chocolate Box News Reader](https://github.com/rongrimes/paxnews) ("paxnews"), the project grew organically. That is I only had a rough idea how it would all look at the end but progresson was consistent over a number of months. You could say that, he is an organic spider (best kind!).
 
@@ -16,23 +16,22 @@ As with the ![Chocolate Box News Reader](https://github.com/rongrimes/paxnews) (
 ## Spider Construction
 The spider grew "organically" over two semesters of the **Art Metal** class held at ![Danforth Collegiate](https://www.danforthcti.com/) in the body shop workshop, under the auspices of the ![TDSB Adult Learner Program](https://www.tdsb.on.ca/Adult-Learners/Learn4Life) (Toronto District School Board). [Thanks to Phil and Toby for their guidance.]
 
-## The Spider
-![10s video](media/DSC_0330_Trim_SoundOff.mp4)
+## General Operations
+The spider sensor resides in the nose and detects motion from pets/humanoids up to 5 metres away (![possibly works on zombies, not guaranteed)](https://www.adafruit.com/product/189).  
+On detection:
+* Spider goes on alert: The cyan eyes and body lights start flashing rapidly.
+* Spider gets angry: The red eyes then transition up to full brightness.
+* Spider emits warning noises: A short sound clip plays repeatedly until the pet/humanoid/zombie goes out of range.
+* All clear, Spider goes back to sleep: The red eyes then transition down.
+* Spider dozing: The cyan eyes and body lights twitch every few seconds.
 
-(Click and review the raw file in a separate window. Further images/video in development).
+### Spider video
+![Spider video](media/Spider2.mp4)
 
-Note: As the eyes come up, there is loud sounds of screams, burps and other. The sound is randomly chosen from the clips library.
+(Click and review the raw file in a separate window.).
 
 ### Schematic
 See ![schematic](fritzing/spider_schematic.pdf)
-
-## General Operations
-The spider sensor resides in the nose and detects people, animals and ghoulies passing nearby. On detection:
-* The eyes transition up to full brightness
-* A short sound clip plays
-
-While there is a stranger detected, the eyes stay on, and they and the body flashes twice a second (in "anger").
-When the nose sensor no longer detects a nearby presence, the eyes  transition to "off", and the flashing lights flash only every 10 seconds.
 
 ## Operations
 Start spider with:  
@@ -46,4 +45,4 @@ crontab:
 Ron Grimes  
 Toronto  
 Started:     January 2019  
-Last Update: May 2020  
+Last Update: June 2020  
