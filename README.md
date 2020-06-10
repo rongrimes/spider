@@ -34,8 +34,7 @@ On detection:
 See ![schematic](fritzing/spider_schematic.pdf)
 
 ## Operations
-Start spider with:  
-crontab:
+Start spider with _crontab_:
 ```
 @reboot rm -f /home/pi/python/spider/ospid.txt # JOB_ID_1; Remove pid file to prevent mulitiple incursions of spider.
 @reboot sleep 2 && ~pi/run_spider.sh # JOB_ID_2; start spider.
