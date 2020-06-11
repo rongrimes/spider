@@ -1,4 +1,6 @@
 # Heavy Metal Hollywood Spider
+<img src="./media/Spider_with_eyes.png" height="50%" width="50%">
+
 The **Spider** project is a fusion of two current interests:
 * Art Metal class
 * Raspberry Pi and related hardware software.
