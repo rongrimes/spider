@@ -31,12 +31,12 @@ On pet/humanoid/zombie detection:
 * Spider dozing: The cyan eyes and body lights twitch every few seconds.
 
 ### Spider video
-![Spider video](media/Spider2.mp4)
+![Spider video](media/Spider2.mp4).
 
 (Click and review the ![raw file](https://github.com/rongrimes/spider/blob/master/media/Spider2.mp4?raw=true) in a separate window.).
 
 ### Schematic
-See ![schematic](fritzing/spider_schematic.pdf)
+See ![schematic](fritzing/spider_schematic.pdf).
 
 ## Operations
 Start spider with _crontab_:
