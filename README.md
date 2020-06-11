@@ -19,7 +19,7 @@ As with the ![Chocolate Box News Reader](https://github.com/rongrimes/paxnews) (
 The spider grew "organically" over two semesters of the **Art Metal** class held at ![Danforth Collegiate](https://www.danforthcti.com/) in the body shop workshop, under the auspices of the ![TDSB Adult Learner Program](https://www.tdsb.on.ca/Adult-Learners/Learn4Life) (Toronto District School Board). [Thanks to Phil and Toby for their guidance.]
 
 ## General Operations
-The spider sensor resides in the nose and detects motion from pets/humanoids up to 5 metres away (![possibly works on zombies, not guaranteed)](https://www.adafruit.com/product/189).  
+The spider sensor resides in the nose and detects motion from pets/humanoids up to 5 metres away (<a href="https://www.adafruit.com/product/189" target="_blank">possibly works on zombies, not guaranteed</a>).  
 On detection:
 * Spider goes on alert: The cyan eyes and body lights start flashing rapidly.
 * Spider gets angry: The red eyes then transition up to full brightness.
