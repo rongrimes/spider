@@ -33,7 +33,7 @@ On pet/humanoid/zombie detection:
 ### Spider video
 ![Spider video](media/Spider2.mp4).
 
-(Click and review the ![raw file](https://github.com/rongrimes/spider/blob/master/media/Spider2.mp4?raw=true) in a separate window.).
+(Click and view the ![raw file](https://github.com/rongrimes/spider/blob/master/media/Spider2.mp4?raw=true) in a separate window.).
 
 ### Schematic
 See ![schematic](fritzing/spider_schematic.pdf).
