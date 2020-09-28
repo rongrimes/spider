@@ -24,19 +24,20 @@ The spider grew "organically" over two semesters of the **Art Metal** class held
 The spider sensor resides in the nose and detects motion from pets/humanoids/zombie  up to 5 metres away (<a href="https://www.adafruit.com/product/189" target="_blank">possibly works on zombies, not guaranteed</a>).
 
 On pet/humanoid/zombie detection:
+* Spider is dozing: The cyan eyes and body lights twitch every few seconds. Until someone/thing comes by.
 * Spider goes on alert: The cyan eyes and body lights start flashing rapidly.
 * Spider gets angry: The red eyes then transition up to full brightness.
 * Spider emits warning noises: A short sound clip plays repeatedly until the pet/humanoid/zombie goes out of range.
 * All clear, Spider goes back to sleep: The red eyes then transition down.
-* Spider dozing: The cyan eyes and body lights twitch every few seconds.
+* Spider goes back to dozing.
 
 ### Spider video
-![Spider video](media/Spider2.mp4)
+![Spider video](media/Spider2.mp4).
 
-(Click and review the ![raw file](https://github.com/rongrimes/spider/blob/master/media/Spider2.mp4?raw=true) in a separate window.).
+(Click and view the ![raw file](https://github.com/rongrimes/spider/blob/master/media/Spider2.mp4?raw=true) in a separate window.).
 
 ### Schematic
-See ![schematic](fritzing/spider_schematic.pdf)
+See ![schematic](fritzing/spider_schematic.pdf).
 
 ## Operations
 Start spider with _crontab_:
