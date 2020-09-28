@@ -11,7 +11,8 @@ from sys import exit
 
 # Local imports
 from green_light import *
-from sound_board import *
+#from sound_board import *
+from sound_board import My_globals, Sound_board
 
 # Set RPi ports
 pir_pin = 12
@@ -42,6 +43,15 @@ def eyes_down(pin_no):
         pin_no.ChangeDutyCycle(eyes_level)
         time.sleep(delay)
 
+def make_eye_intensities(max_int):
+    global eyes_intensity
+    eyes_steps = 16
+    eyes_intensity = {int(((10**(r/eyes_steps)-1)*max_int/9)+0.99) for r in range(0,eyes_steps+1)}
+                       # exponential series {0..max_intensity} - created as a set to remove duplicates
+    eyes_intensity = sorted(list(eyes_intensity))     # convert set to list to ensure sequencing.
+                                                      # sort: since the set returns in undetermined order.
+    print(eyes_intensity)
+    return eyes_intensity 
 
 #---------------------------------------------------------------
 def flash_GB():
@@ -84,11 +94,9 @@ def track_pir():
         time.sleep(wait_change)
 
     green_light.set("off")
+    max_eye_intensity = my_globals.spider_parms["MAX_INT"]  # get MAX-INT so we can check for changes
 
     while True:     # main loop - only exited with a "return" statement.
-        # Get spider parms
-        my_globals.get_spider_parms()         # since they can change by s_parms.py outside the program.
-
         while True:
             if my_globals.end_request:
                 print("track_pir shutting down")
@@ -102,6 +110,13 @@ def track_pir():
 #           The PIR line is now high: check for a false positive
             green_light.set("on")
             print("/ \b", end="", flush=True)
+
+            # Get spider parms
+            my_globals.get_spider_parms()   # since they can change by
+            if my_globals.spider_parms["MAX_INT"] != max_eye_intensity:
+                max_eye_intensity = my_globals.spider_parms["MAX_INT"]
+                eyes_intensity = make_eye_intensities(max_eye_intensity ) 
+
             my_globals.animation_active = True    # Enable sound and start quick flashing
 
             to_ticks = 0                       # timeout_ticks
@@ -128,6 +143,9 @@ def track_pir():
         curr_time = datetime.datetime.now().strftime('%H:%M:%S')
         print("\n>Rising  edge detected on port", str(pir_pin) + ",", curr_time)
 
+        # Get spider parms
+        my_globals.get_spider_parms()   # since they can change by
+                                        # key_parms.py or s_parms.py outside the program.
         if my_globals.spider_parms["ON"]:
             sound = threading.Thread(target=sound_board.play_sound, args=(my_globals, ))
             sound.start()
@@ -205,13 +223,7 @@ thr_flasher = threading.Thread(target=flash_GB)
 thr_flasher.start()
 
 #Generate eye intensities
-eyes_steps = 16
-max_int = my_globals.spider_parms["MAX_INT"]
-eyes_intensity = {int(((10**(r/eyes_steps)-1)*max_int/9)+0.99) for r in range(0,eyes_steps+1)}
-                   # exponential series {0..max_intensity} - created as a set to remove duplicates
-eyes_intensity = sorted(list(eyes_intensity))     # convert set to list to ensure sequencing.
-                                                  # sort: since the set returns in undetermined order.
-print(eyes_intensity)
+eyes_intensity = make_eye_intensities(my_globals.spider_parms["MAX_INT"])
 
 #-----------------------------
 # Arm sigint to cause proceed to graceful end.
