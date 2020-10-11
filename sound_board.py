@@ -59,4 +59,4 @@ class Sound_board:
             popen = subprocess.Popen(mpg123, stdout=subprocess.PIPE, shell=True,
                 preexec_fn=os.setsid)
             popen.wait()
-            sleep(3)
+            sleep(1)
