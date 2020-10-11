@@ -187,7 +187,7 @@ if os.path.isfile(ospid_file):
 
 # We store the process id here - used in 2 places:
 # 1. We check in spider to see if we're already running. (code above)
-# 2. Used in the kill_spider.sh  script to send a signint to the program.
+# 2. Used in the kill_spider.sh  script to send a SIGINT to the program.
 
 with open(ospid_file, "w") as f:
     f.write(str(os.getpid()))
@@ -232,7 +232,7 @@ signal.signal(signal.SIGINT, handler)
 try:
     # let the threads take over & do the work.
     while True:
-        time.sleep(0.1)
+        time.sleep(0.25)
                 
 except KeyboardInterrupt:
     my_globals.end_request = True
