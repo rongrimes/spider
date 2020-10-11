@@ -9,7 +9,7 @@ import subprocess
 spider_parmfile = "spiderparms.json"
 
 #default values
-spider_parms = {"ON": False, "VOLUME":10000, "MAX_INT":25} # 0 <= VOLUME  <= 32768
+spider_parms = {"ON": False, "VOLUME":10000, "MAX_INT":25} # 0 <= VOLUME  <= 1000000?
 
 #---------------------------------------------------------------
 def get_spider_parms():
@@ -48,7 +48,7 @@ try:
             break
 
     while True:
-        value = input("Volume (0-32768) [" + str(spider_parms["VOLUME"])\
+        value = input("Volume (0-1000000) [" + str(spider_parms["VOLUME"])\
                 + "]: ")
         if len(value) == 0:
             break
@@ -56,7 +56,7 @@ try:
             value = int(value)
         else:
             continue
-        if 0 <= value <= 32768: 
+        if 0 <= value <= 1000000: 
             spider_parms["VOLUME"] = value
             changed = True
             break
