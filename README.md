@@ -36,6 +36,12 @@ On pet/humanoid/zombie detection:
 
 (Click and view the ![raw file](https://github.com/rongrimes/spider/blob/master/media/Spider2.mp4?raw=true) in a separate window.).
 
+### Spider Control Subsystem
+A 4-Button 315Mhz Keyfob RF Remote Control controls paramaters of the spider: Sound On/Off, Sound Volume, Eye Intensity. The kwyfob controls a Simple RF M4 Receiver (Momentary Type) with results fed through to four GPIO pins via separate simple voltage splitters to translate 5V to 3.3V (2.8V actually).
+
+The program *key_parms.py* watches the remote control and updates a shared json file used by _spider.py_.
+
+
 ### Schematic
 See ![schematic](fritzing/spider_schematic.pdf).
 
@@ -43,7 +49,8 @@ See ![schematic](fritzing/spider_schematic.pdf).
 Start spider with _crontab_:
 ```
 @reboot rm -f /home/pi/python/spider/ospid.txt # JOB_ID_1; Remove pid file to prevent mulitiple incursions of spider.
-@reboot sleep 2 && ~pi/run_spider.sh # JOB_ID_2; start spider.
+@reboot sleep 1 && ~pi/run_spider.sh           # JOB_ID_2; start spider.
+@reboot sleep 2 && stdbuf -oL ~pi/python/spider/key_parms.py >> /tmp/spider.txti  # JOB_ID_3; start key controller.
 ```
 
 ## FAQ
