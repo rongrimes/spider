@@ -54,4 +54,4 @@ A: Well, we... the spider and me... live on Hollywood Cres.
 Ron Grimes  
 Toronto  
 Started:     January 2019  
-Last Update: June 2020  
+Last Update: October 2020: Files update; this description is now out-of-date. Pending update :)  
