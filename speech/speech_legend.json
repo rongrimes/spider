@@ -1,0 +1,132 @@
+{
+	"description": "description",
+	"url": "https://text-to-speech-demo.ng.bluemix.net/",
+	"voice": "American English (en-US): AllisonV3 (female, enhanced dnn)",
+	"files": {
+		"01-Hello-Spider": {
+			"text": "Hello. I am Spider.",
+			"watson_text": "<p><s><prosody rate='-15%'> Hello. I am Spider.</prosody></s></p>",
+			"filename": "01-Hello-Spider.mp3"
+		},
+		"02-Press-D-Attention": {
+			"text": "Press D to get my attention.",
+			"watson_text": "<p><s><prosody rate='-10%'>Press <say-as interpret-as='letters'>D</say-as> to get my attention.</prosody></s></p>",
+			"filename": "02-Press-D-Attention.mp3"
+		},
+		"03-A": {
+			"text": "A",
+			"watson_text": "<p><s><prosody rate='-10%'><say-as interpret-as='letters'>A</say-as></prosody></s></p>",
+			"filename": "03-A.mp3"
+		},
+		"04-B": {
+			"text": "B",
+			"watson_text": "<p><s><prosody rate='-10%'><say-as interpret-as='letters'>B</say-as></prosody></s></p>",
+			"filename": "04-B.mp3"
+		},
+		"05-C": {
+			"text": "C",
+			"watson_text": "<p><s><prosody rate='-10%'><say-as interpret-as='letters'>C</say-as></prosody></s></p>",
+			"filename": "05-C.mp3"
+		},
+		"06-D": {
+			"text": "D",
+			"watson_text": "<p><s><prosody rate='-10%'><say-as interpret-as='letters'>D</say-as></prosody></s></p>",
+			"filename": "06-D.mp3"
+		},
+		"07-Goodbye": {
+			"text": "Goodbye.",
+			"watson_text": "<p><s><prosody rate='-10%'>Goodbye.</prosody></s></p>",
+			"filename": "07-Goodbye.mp3"
+		},
+		"08-Press-A-Sound": {
+			"text": "Press A to toggle the sound.",
+			"watson_text": "<p><s><prosody rate='-10%'>Press <break time='100ms'/><say-as interpret-as='letters'>A</say-as> to toggle the sound.</prosody></s></p>",
+			"filename": "08-Press-A-Sound.mp3"
+		},
+		"09-Sound-On": {
+			"text": "Sound On.",
+			"watson_text": "<p><s><prosody rate='-10%'>Sound <break time='100ms'/>On.</prosody></s></p>",
+			"filename": "09-Sound-On.mp3"
+		},
+		"10-Sound-Off": {
+			"text": "Sound Off.",
+			"watson_text": "<p><s><prosody rate='-10%'>Sound <break time='100ms'/>Off.</prosody></s></p>",
+			"filename": "10-Sound-Off.mp3"
+		},
+		"11-Press-D-Exit": {
+			"text": "Press D to exit.",
+			"watson_text": "<p><s><prosody rate='-20%'>Press <break time='100ms'/><say-as interpret-as='letters'>D</say-as><break time='100ms'/> to exit.</prosody></s></p>",
+			"filename": "11-Press-D-Exit.mp3"
+		},
+		"12-Press-D-Menu": {
+			"text": "Press D for the menu.",
+			"watson_text": "<p><s><prosody rate='-10%'>Press <break time='100ms'/><say-as interpret-as='letters'>D</say-as><break time='100ms'/> for the menu.</prosody></s></p>",
+			"filename": "12-Press-D-Menu.mp3"
+		},
+		"13-Press-B-Volume": {
+			"text": "Press B to set the sound volume.",
+			"watson_text": "<p><s><prosody rate='-10%'>Press <break time='100ms'/><say-as interpret-as='letters'>B</say-as> to set the sound volume.</prosody></s></p>",
+			"filename": "13-Press-B-Volume.mp3"
+		},
+		"14-Press-C-Eye": {
+			"text": "Press C to set the maximum eye intensity.",
+			"watson_text": "<p><s><prosody rate='-10%'>Press <break time='100ms'/><say-as interpret-as='letters'>C</say-as> to set the maximum eye intensity.</prosody></s></p>",
+			"filename": "14-Press-C-Eye.mp3"
+		},
+		"15-Sound-Max": {
+			"text": "Sound is set to maximum.",
+			"watson_text": "<p><s><prosody rate='-15%'>Sound is set to maximum.</prosody></s></p>",
+			"filename": "15-Sound-Max.mp3"
+		},
+		"16-Volume-Up": {
+			"text": "Sound volume is increased.",
+			"watson_text": "<p><s><prosody rate='-15%'>Sound volume is increased.</prosody></s></p>",
+			"filename": "16-Volume-Up.mp3"
+		},
+		"17-Volume-Down": {
+			"text": "Sound volume is reduced.",
+			"watson_text": "<p><s><prosody rate='-15%'>Sound volume is reduced.</prosody></s></p>",
+			"filename": "17-Volume-Down.mp3"
+		},
+		"18-Press-AC-IncrDecr": {
+			"text": "Press A to increase the volume. To reduce the volume, press C.",
+			"watson_text": "<p><s><prosody rate='-10%'> Press <say-as interpret-as='letters'> A </say-as> to increase the volume.</prosody></s></p> <p><s><prosody rate='-15%'> To reduce <break time='100ms'/> the volume, press <break time='100ms'/> <say-as interpret-as='letters'> C </say-as>. </prosody></s></p>",
+			"filename": "18-Press-AC-IncrDecr.mp3"
+		},
+		"19-Press-B-Play": {
+			"text": "Press B to reply at the current volume level.",
+			"watson_text": "<p><s><prosody rate='-20%'>Press <say-as interpret-as='letters'> B </say-as> to reply at the current volume level.</prosody></s></p>",
+			"filename": "19-Press-B-Play.mp3"
+		},
+		"20-Values-Changed": {
+			"text": "Values changed.",
+			"watson_text": "<p><s><prosody rate='-10%'>Values changed.</prosody></s></p>",
+			"filename": "20-Values-Changed.mp3"
+		},
+		"21-Eye-Max": {
+			"text": "Eye intensity is set to maximum.",
+			"watson_text": "<p><s><prosody rate='-15%'>Eye intensity is set to maximum.</prosody></s></p>",
+			"filename": "21-Eye-Max.mp3"
+		},
+		"22-Eye-Min": {
+			"text": "Eye intensity is set to minimum.",
+			"watson_text": "<p><s><prosody rate='-15%'>Eye intensity is set to minimum.</prosody></s></p>",
+			"filename": "22-Eye-Min.mp3"
+		},
+		"23-Eye-Up": {
+			"text": "Eye intensity is increased.",
+			"watson_text": "<p><s><prosody rate='-15%'>Eye intensity is increased.</prosody></s></p>",
+			"filename": "23-Eye-Up.mp3"
+		},
+		"24-Eye-Down": {
+			"text": "Eye intensity is reduced.",
+			"watson_text": "<p><s><prosody rate='-15%'>Eye intensity is reduced.</prosody></s></p>",
+			"filename": "24-Eye-Down.mp3"
+		},
+		"25-Press-AC-IncrDecr-Eye": {
+			"text": "Press A to increase eye intensity. To reduce eye intensity, press C.",
+			"watson_text": "<p><s><prosody rate='-25%'>Press A to increase eye intensity. To reduce intensity, press <break time='100ms'/><say-as interpret-as='letters'> C </say-as>.</prosody></s></p>",
+			"filename": "25-Press-AC-IncrDecr-Eye.mp3"
+		}
+	}
+}
