@@ -18,7 +18,7 @@ Ultimately, HMHS is going to be a Halloween prop.
 * LED string (white)
 
 ## Spider Construction
-The spider grew "organically" over two semesters of the **Art Metal** class held at ![Danforth Collegiate](https://www.danforthcti.com/) in the body shop workshop, under the auspices of the ![TDSB Adult Learner Program](https://www.tdsb.on.ca/Adult-Learners/Learn4Life) (Toronto District School Board). [Thanks to Phil and Toby for their guidance.]
+The spider grew "organically" over two semesters of the **Art Metal** class held at <a href="https://www.danforthcti.com/">Danforth Collegiate</a> in the body shop workshop, under the auspices of the <a href="https://www.tdsb.on.ca/Adult-Learners/Learn4Life">TDSB Adult Learner Program</a> (Toronto District School Board). [Thanks to Phil and Toby for their guidance.]
 
 ## General Operations
 The spider sensor resides in the nose and detects motion from pets/humanoids/zombie  up to 5 metres away (<a href="https://www.adafruit.com/product/189" target="_blank">possibly works on zombies, not guaranteed</a>).
@@ -37,9 +37,9 @@ On pet/humanoid/zombie detection:
 (Click and view the ![raw file](https://github.com/rongrimes/spider/blob/master/media/Spider2.mp4?raw=true) in a separate window.).
 
 ### Spider Control Subsystem
-A ![4-Button 315Mhz Keyfob RF Remote Control](https://www.buyapi.ca/product/keyfob-4-button-rf-remote-control-315mhz) controls parameters of the spider: Sound On/Off, Sound Volume, Eye Intensity.
+A <a href="https://www.buyapi.ca/product/keyfob-4-button-rf-remote-control-315mhz">4-Button 315Mhz Keyfob RF Remote Control</a> controls parameters of the spider: Sound On/Off, Sound Volume, Eye Intensity.
 
-The keyfob controls a ![Simple RF M4 Receiver](https://rongrimes.ca) with results fed through to four GPIO pins via separate simple voltage splitters to translate 5V to 3.3V (2.8V actually).
+The keyfob controls a <a href="https://www.buyapi.ca/product/simple-rf-m4-receiver-315mhz-momentary-type/">Simple RF M4 Receiver</a> with results fed through to four GPIO pins via separate simple voltage splitters to translate 5V to 3.3V (2.8V actually).
 
 The program *key_parms.py* watches the remote control and updates a shared json file used by _spider.py_.
 
