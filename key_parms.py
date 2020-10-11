@@ -23,7 +23,7 @@ voices_file     = speech_loc + "speech_legend.json"
 voice_volume = 40000      # range: 0 - max  (1000000?)
 max_volume   = 100000     # range: 0 - max  (1000000?)
 
-max_eye_intensity = 100
+max_eye_intensity = 80    # max is 100, but may draw too much power.
 min_eye_intensity = 40
 
 #default values
@@ -286,7 +286,7 @@ try:
 
         if changed:
             speak("20-Values-Changed")
-            print(spider_parms)
+            print(spider_parms, flush=True)    # for writing to piped log file.
             put_spider_parms()
             sleep(0.5)         # cosmetic pause before next sound message.
 
