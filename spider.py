@@ -16,6 +16,7 @@ from sound_board import My_globals, Sound_board
 
 # Set RPi ports
 pir_pin = 12
+#pir_pin = 19
 led_RED = 26
 led_GRN = 6
 led_BLU = 13
@@ -185,13 +186,6 @@ if os.path.isfile(ospid_file):
             "remove the file:", ospid_file)
     exit()
 
-# We store the process id here - used in 2 places:
-# 1. We check in spider to see if we're already running. (code above)
-# 2. Used in the kill_spider.sh  script to send a SIGINT to the program.
-
-with open(ospid_file, "w") as f:
-    f.write(str(os.getpid()))
-
 # Set up globals and get spider_parms
 my_globals = My_globals()
 my_globals.animation_active = False   # (also) initialized in My_globals.__init__
@@ -228,6 +222,14 @@ eyes_intensity = make_eye_intensities(my_globals.spider_parms["MAX_INT"])
 #-----------------------------
 # Arm sigint to cause proceed to graceful end.
 signal.signal(signal.SIGINT, handler)
+
+# We store the process id here - used in 2 places:
+# 1. We check in spider to see if we're already running. (code above)
+# 2. Used in the kill_spider.sh  script to send a SIGINT to the program.
+# Needs to appear after Green light initialization since Green light can kill the startup.
+
+with open(ospid_file, "w") as f:
+    f.write(str(os.getpid()))
 
 try:
     # let the threads take over & do the work.
