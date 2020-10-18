@@ -79,13 +79,13 @@ def set_sound():
 
     changed = False
     speak("08-Press-A-Sound")
+    speak("11-Press-D-Exit")
 
     while True:
         if spider_parms["ON"]:
             speak("09-Sound-On")
         else:
             speak("10-Sound-Off")
-        speak("11-Press-D-Exit")
 
         while True:
             letter = get_letter()
@@ -101,11 +101,11 @@ def set_sound():
 def volume_increase(volume):
     if volume == 0:
         return 1000
-    volume += max(int(volume * 0.2), 5000)
+    volume += max(int(volume * 0.25), 10000)
     return round(min(volume, max_volume), -3)
 
 def volume_decrease(volume):
-    volume -= max(int(volume * 0.2), 5000)
+    volume -= max(int(volume * 0.25), 10000)
     return round(max(0, volume), -3)
 
 def set_volume():
@@ -121,9 +121,9 @@ def set_volume():
 #   Read menu
     speak("18-Press-AC-IncrDecr")
     speak("19-Press-B-Play")
+    speak("11-Press-D-Exit")
 
     while True:
-        speak("11-Press-D-Exit")
         letter = get_letter()
         if letter == "A":
             spider_parms["VOLUME"] = volume_increase(spider_parms["VOLUME"])
@@ -167,9 +167,9 @@ def set_eyepower():
     changed = False
 #   Read menu
     speak("25-Press-AC-IncrDecr-Eye")
+    speak("11-Press-D-Exit")
 
     while True:
-        speak("11-Press-D-Exit")
         letter = get_letter()
         if letter == "A":
             spider_parms["MAX_INT"] = eye_increase(spider_parms["MAX_INT"])
@@ -207,9 +207,10 @@ def get_letter():
 #---------------------------------------------------------------------------------
 # Wait for D key
 def wait_for_D():
+    only_D = True
     while get_letter() != "D":
-        pass
-#   speak("06-D")
+        only_D = False
+    return only_D
 
 #---------------------------------------------------------------------------------
 def speak(voice_key, volume=voice_volume):
@@ -223,6 +224,17 @@ def speak(voice_key, volume=voice_volume):
     popen = subprocess.Popen(mpg123, stdout=subprocess.PIPE, shell=True,
         preexec_fn=os.setsid)
     popen.wait()
+
+#---------------------------------------------------------------------------------
+def shutdown_spider():
+    speak("07-Goodbye")
+
+    command = "/usr/bin/sudo /sbin/shutdown now"
+    popen = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
+    output = popen.communicate()[0]
+    print(output)
+    popen.wait()
+    sleep(100)
 
 #---------------------------------------------------------------------------------
 # Arm signal to end program.
@@ -261,11 +273,16 @@ signal.signal(signal.SIGINT, sig_handler)
 
 # Get spider parms
 get_spider_parms()
+d_count = 0
 
 try:
     while True:
         speak("02-Press-D-Attention")
-        wait_for_D()
+        only_D = wait_for_D()
+        if only_D and d_count >= 2 :
+            shutdown_spider()
+
+        d_count = 0
         speak("12-Press-D-Menu")
 
         while True:
@@ -280,9 +297,14 @@ try:
                 changed = set_eyepower()
                 break
             elif key == "D":
+                d_count += 1 
+                if d_count >= 2:
+                    break
+                changed = False
                 speak("08-Press-A-Sound")
                 speak("13-Press-B-Volume")
                 speak("14-Press-C-Eye")
+                speak("11-Press-D-Exit")
 
         if changed:
             speak("20-Values-Changed")
