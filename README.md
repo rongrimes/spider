@@ -5,17 +5,19 @@ The **Spider** project is a fusion of two current interests:
 * Art Metal class
 * Raspberry Pi and related hardware software.
 
-As with the ![Chocolate Box News Reader](https://github.com/rongrimes/paxnews) ("paxnews"), the project grew organically. That is I only had a rough idea how it would all look at the end but progresson was consistent over a number of months. You could say that, he is an organic spider (best kind!).
+As with the ![Chocolate Box News Reader](https://github.com/rongrimes/paxnews) ("paxnews"), the project grew organically. That is I had a rough idea how it would all look at the end but progress was consistent over a number of months. You could say that, he is an organic spider (best kind!).
 
-Ultimately, HMHS is going to be a Halloween prop.
+Ultimately, HMHS became a successful Halloween prop.
 
 ## Components:
-* Raspberry Pi Zero W
+* [Raspberry Pi Zero W](https://www.buyapi.ca/product/raspberry-pi-zero-w/)
 * Eyes: 2 clusters of 4 RGB LEDs
-* Adafruit I2S 3W Stereo Speaker Bonnet for Raspberry Pi
+* [Adafruit I2S 3W Stereo Speaker Bonnet for Raspberry Pi](https://www.buyapi.ca/product/adafruit-i2s-3w-stereo-speaker-bonnet-for-raspberry-pi-mini-kit/)
   * includes 2 speakers 
-* PIR sensor
-* LED string (white)
+* [PIR sensor](https://www.buyapi.ca/product/hc-sr501-pyroelectric-infrared-pir-motion-sensor-detector-module/)
+* [LED string (white) or similar](https://www.staples.com/5ft-15-Soft-White-String-Lights-with-Timer-74445/product_2724775)
+* [Simple RF M4 Receiver - 315MHz Momentary Type](https://www.buyapi.ca/product/simple-rf-m4-receiver-315mhz-momentary-type/)
+* [Keyfob 4-Button RF Remote Control - 315MHz](https://www.buyapi.ca/product/keyfob-4-button-rf-remote-control-315mhz/)
 
 ## Spider Construction
 The spider grew "organically" over two semesters of the **Art Metal** class held at <a href="https://www.danforthcti.com/">Danforth Collegiate</a> in the body shop workshop, under the auspices of the <a href="https://www.tdsb.on.ca/Adult-Learners/Learn4Life">TDSB Adult Learner Program</a> (Toronto District School Board). [Thanks to Phil and Toby for their guidance.]
@@ -43,10 +45,9 @@ The keyfob controls a <a href="https://www.buyapi.ca/product/simple-rf-m4-receiv
 
 The program *key_parms.py* watches the remote control and updates a shared json file used by _spider.py_.
 
-
 ### Schematic
 See ![schematic](fritzing/spider_schematic.pdf).  
-(Remote control content to be added.)
+(Remote control content is not shown.)
 
 ## Operations
 Start spider with _crontab_:
@@ -64,4 +65,4 @@ A: Well, we... the spider and me... live on Hollywood Cres.
 Ron Grimes  
 Toronto  
 Started:     January 2019  
-Last Update: October 2020
+Last Update: November 2020
