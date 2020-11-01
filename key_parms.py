@@ -21,7 +21,7 @@ speech_loc      = "/home/pi/python/spider/speech/"
 voices_file     = speech_loc + "speech_legend.json"
 
 voice_volume = 40000      # range: 0 - max  (1000000?)
-max_volume   = 100000     # range: 0 - max  (1000000?)
+max_volume   = 1000000    # range: 0 - max  (1000000?)
 
 max_eye_intensity = 80    # max is 100, but may draw too much power.
 min_eye_intensity = 40
