@@ -49,13 +49,20 @@ class Sound_board:
         return self.last_clip
 
     def play_sound(self, my_globals):
+        limit = 2     # Play no more than 2x.
+        play  = 0
+
         sound_file = self.sound_list[self._get_sound_index()]
         print(" {}".format(sound_file))
 
         mpg123 = "exec sudo -u pi mpg123 -q -f " + str(my_globals.spider_parms["VOLUME"]) \
                 + " " + sound_file
 
-        while my_globals.animation_active and not my_globals.end_request:
+        while my_globals.animation_active:
+            if play >= limit or my_globals.end_request:
+                break   # OK, we're gone!
+            play += 1
+
             popen = subprocess.Popen(mpg123, stdout=subprocess.PIPE, shell=True,
                 preexec_fn=os.setsid)
             popen.wait()
