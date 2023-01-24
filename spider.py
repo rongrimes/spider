@@ -16,10 +16,10 @@ from sound_board import My_globals, Sound_board
 
 # Set RPi ports
 pir_pin = 12
-#pir_pin = 19
-led_RED = 26
-led_GRN = 6
-led_BLU = 13
+
+led_RED = 13
+led_GRN = 26
+led_BLU = 6
 
 wait_change = 0.1    # time to wait for pir to change before looking again.
 
