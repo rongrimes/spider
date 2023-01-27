@@ -22,7 +22,7 @@ def led_set(pin_no, value):
 #---------------------------------------------------------------
 def track_pir():
     while True:
-            led_up(pwm_RED)   # slowest operation
+            led_setup(pwm_RED)   # slowest operation
 
 #---------------------------------------------------------------------------------
 # START HERE (Really!)
@@ -47,6 +47,8 @@ try:
         print()
 
 except KeyboardInterrupt:
+    print()
+except EOFError:
     print()
 
 GPIO.cleanup()           # clean up GPIO
