@@ -145,8 +145,16 @@ def track_pir():
         print("\n>Rising  edge detected on port", str(pir_pin) + ",", curr_time)
 
         # Get spider parms
-        my_globals.get_spider_parms()   # since they can change by
-                                        # key_parms.py or s_parms.py outside the program.
+        # Hold here if EYES_ON is false - we are using the IR board and want to make sure it keeps
+        # the voltage power and it doesn't go to the red eyes.
+        while True:
+            my_globals.get_spider_parms()   # since they can change by
+                                            # key_parms.py or s_parms.py outside the program.
+            if my_globals.spider_parms["EYES_ON"]:
+                break
+            time.sleep(1)
+
+
         if my_globals.spider_parms["ON"]:
             sound = threading.Thread(target=sound_board.play_sound, args=(my_globals, ))
             sound.start()
