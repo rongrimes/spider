@@ -9,7 +9,8 @@ class My_globals:
     spider_parmfile = "spiderparms.json"
     spider_parms = {"ON": False,
             "VOLUME":10000,     # 0 <= VOLUME  <= 32768
-            "MAX_INT":25 }      # 0 <= MAX_INT <= 100
+            "MAX_INT":25,       # 0 <= MAX_INT <= 10
+            "EYES_ON:": True }      # to inhibit the eyes while we're using the IR board
 
     def __init__(self):
         self.animation_active = False
