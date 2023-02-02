@@ -1,0 +1,4 @@
+@reboot rm -f /home/pi/python/spider/ospid.txt
+@reboot sleep 1 && ~pi/run_spider.sh
+#
+@reboot sleep 2 && ~pi/python/spider/key_parms.py >> /tmp/spider.txt
