@@ -27,7 +27,8 @@ max_eye_intensity = 80    # max is 100, but may draw too much power.
 min_eye_intensity = 40
 
 #default values
-spider_parms = {"ON": False, "VOLUME":10000, "MAX_INT":25} # 0 <= VOLUME  <= 100000+
+spider_parms = {"ON": False, "VOLUME":10000, "MAX_INT":25,
+                "EYES_ON": True} # 0 <= VOLUME  <= 100000+
 
 #---------------------------------------------------------------
 # Interrupts from the key fob
@@ -282,6 +283,12 @@ try:
         if only_D and d_count >= 2 :
             shutdown_spider()
 
+#       We want to turn spider off whenwe're using the ABCD clicker. spider draws too much
+#       power (drops the voltage to the IR board), and so if we're tlking to the spider,
+#       we want to turn him off.
+        spider_parms["EYES_ON"] = False
+        put_spider_parms()
+
         d_count = 0
         speak("12-Press-D-Menu")
 
@@ -311,6 +318,10 @@ try:
             print(spider_parms, flush=True)    # for writing to piped log file.
             put_spider_parms()
             sleep(0.5)         # cosmetic pause before next sound message.
+
+        # restore the red eyes to functioning mode.
+        spider_parms["EYES_ON"] = True
+        put_spider_parms()
 
 except KeyboardInterrupt:
     print("")
