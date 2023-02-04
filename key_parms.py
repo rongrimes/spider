@@ -247,30 +247,26 @@ def sig_handler(signum, frame):
 #---------------------------------------------------------------
 # Initialize the Pi
 GPIO.setmode(GPIO.BCM)
-#GPIO.setwarnings(False)     # Turn off warning if we didn't a GPIO cleanup
+GPIO.setwarnings(False)     # Turn off warning if we didn't a GPIO cleanup
+
+# Init key lines
+
+for key in [key_A, key_B, key_C, key_D]:
+    GPIO.setup(key, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # activate input
+    try:
+        GPIO.add_event_detect(key, GPIO.RISING, callback=fob_rising)
+    except RuntimeError as X:
+        print(f'RuntimeError: {X}')
+# The above sometimes fails. Either:
+# 1. Ignore.
+# 2. Let the OS print out the details for debugging.
+
+# Arm sigint to cause proceed to graceful end.
+signal.signal(signal.SIGINT, sig_handler)
 
 # Get voice file
 get_voices_file()
 speak("01-Hello-Spider")
-
-# Init key lines
-# pull_up resistor not available for Key_A, key_B, and not useful....
-GPIO.setup(key_A, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # activate input
-GPIO.setup(key_B, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.setup(key_C, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.setup(key_D, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-
-try:
-    GPIO.add_event_detect(key_A, GPIO.RISING, callback=fob_rising)
-    GPIO.add_event_detect(key_B, GPIO.RISING, callback=fob_rising)
-    GPIO.add_event_detect(key_C, GPIO.RISING, callback=fob_rising)
-    GPIO.add_event_detect(key_D, GPIO.RISING, callback=fob_rising)
-except RuntimeError as X:
-    print(X)
-    sys.exit()
-
-# Arm sigint to cause proceed to graceful end.
-signal.signal(signal.SIGINT, sig_handler)
 
 # Get spider parms
 get_spider_parms()
