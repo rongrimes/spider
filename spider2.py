@@ -21,16 +21,16 @@ import signal
 from sys import exit
 
 # Local imports
-from green_light import *
+#from green_light import *
 #from sound_board import *
 from sound_board import My_globals, Sound_board
 
 # Set RPi ports
 pir_pin = 12
 #pir_pin = 19
-led_RED = 26
+led_RED = 13
 led_GRN = 6
-led_BLU = 13
+led_BLU = 26
 
 wait_change = 0.1    # time to wait for pir to change before looking again.
 
@@ -46,7 +46,7 @@ def eyes_setup(pin_no):
 
 def make_eye_intensities(max_int):
     global eyes_intensity
-    eyes_steps = 16
+    eyes_steps = 40
     eyes_intensity = {int(((10**(r/eyes_steps)-1)*max_int/9)+0.99) for r in range(0,eyes_steps+1)}
                        # exponential series {0..max_intensity} - created as a set to remove duplicates
     eyes_intensity = sorted(list(eyes_intensity))     # convert set to list to ensure sequencing.
@@ -63,10 +63,11 @@ def handler(signum, frame):
 #---------------------------------------------------------------
 #   async functions
 async def eyes_change(pin_no, UP=True):
-    delay = 0.5   # seconds
-    change = eyes_intensity if True else eyes_intensity[::-1]
-    print('change =', change)
-    for eyes_level in eyes_intensity:
+    eye_change_transition = 4 # seconds
+    delay =  eye_change_transition / len(eyes_intensity)   # seconds
+    direction = 1 if UP else -1
+
+    for eyes_level in eyes_intensity[::direction]:
         pin_no.ChangeDutyCycle(eyes_level)
         await asyncio.sleep(delay)
 
@@ -75,7 +76,7 @@ async def flash_GB():
     slow_flash = 5       # seconds between flashes during quiet period
     fast_flash = 0.5     # seconds between flashes when animation_active is True
 
-    print("flash_GB  thread:", thr_flasher.name)
+    print("flash_GB  co-routine")
 
     seconds = slow_flash            # force a flash on initialization
     while True:
@@ -103,13 +104,13 @@ async def track_pir():
     wait_on = 7        # wait this long (seconds) to see it's a real mamalian critter or zombie (not guaranteed)
     max_ticks = int(wait_on * 1 / wait_change)  # ticks in (wait_on) seconds.
 
-    print("track_pir thread:", thr_pir.name)
+    print("track_pir co-routine")
     
     # wait until PIR drops during initialization - may/may not be high
     while GPIO.input(pir_pin):
         await asyncio.sleep(wait_change)
 
-    green_light.set("off")
+#   green_light.set("off")
     max_eye_intensity = my_globals.spider_parms["MAX_INT"]  # get MAX-INT so we can check for changes
 
     while True:     # main loop - only exited with a "return" statement.
@@ -124,7 +125,7 @@ async def track_pir():
                 continue
 
 #           The PIR line is now high: check for a false positive
-            green_light.set("on")
+#           green_light.set("on")
             print("/ \b", end="", flush=True)
 
             # Get spider parms
@@ -151,7 +152,7 @@ async def track_pir():
                 break    # out of while True loop
 
 #           pir line is down, but we are less than the ticks timeout period - hence don't activate the spider.
-            green_light.set("off")
+#           green_light.set("off")
             report = "\\" + tick_str(to_ticks)
             print(report, end="", flush=True)
             my_globals.animation_active = False    # disable quick flashing
@@ -177,7 +178,7 @@ async def track_pir():
             print("track_pir shutting down")
             return
 
-        green_light.set("off")
+#       green_light.set("off")
         curr_time = datetime.datetime.now().strftime('%H:%M:%S')
         print(">Falling edge detected on port", str(pir_pin) + ",", curr_time)
 
@@ -186,9 +187,19 @@ async def track_pir():
 
 #---------------------------------------------------------------------------------
 async def main():
-    #set up coroutines/tasks and start.
-    coros = [flash_GB(), eyes_change(), track_pir(), sound_board()]
-    results = await asyncio.gather(*coros)
+    #  start flash routine
+    co_flashgb = asyncio.create_task(flash_GB())
+#   coros = [flash_GB(), eyes_change(), track_pir(), sound_board()]
+
+    for _ in range(3):
+        ta_eyes_ch = asyncio.create_task(eyes_change(pwm_RED, True))
+        await ta_eyes_ch
+        await asyncio.sleep(1)
+        ta_eyes_ch = asyncio.create_task(eyes_change(pwm_RED, False))
+        await ta_eyes_ch
+        await asyncio.sleep(1)
+
+    results = await co_flashgb
 
 #---------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------
@@ -214,8 +225,8 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)     # Turn off warning if we didn't a GPIO cleanup
 
 # Initialise board green light 
-green_light = Green_Light(Reverse=True)   # "Reverse" required on the Pi zero W
-green_light.set("off")
+#green_light = Green_Light(Reverse=True)   # "Reverse" required on the Pi zero W
+#green_light.set("off")
 
 #Generate eye intensities
 eyes_intensity = make_eye_intensities(my_globals.spider_parms["MAX_INT"])
@@ -237,19 +248,22 @@ sound_board = Sound_board()
 
 # Needs to appear after Green light initialization since Green light
 # can kill the startup.
-with open(ospid_file, "w") as f:
-    f.write(str(os.getpid()))
+#with open(ospid_file, "w") as f:
+#   f.write(str(os.getpid()))
 
 #-----------------------------
 #set up coroutines/tasks and start.
-asyncio.run(main())
+try:
+    asyncio.run(main())
+except KeyboardInterrupt:
+    print("\nKeyboardInterrupt received")
 
 #-----------------------------
 # Cleanup our stuff
 
 # restore greenlight to showing "disk access" events.
-green_light.init("mmc0")
-print("\nGreen light default restored.")
+#green_light.init("mmc0")
+#print("\nGreen light default restored.")
 
 GPIO.cleanup()           # clean up GPIO
 
