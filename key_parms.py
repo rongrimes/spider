@@ -14,7 +14,6 @@ key_A = 22
 key_B = 27
 key_C = 17
 key_D = 4
-letter = None
  
 spider_parmfile = "/home/pi/python/spider/spiderparms.json"
 speech_loc      = "/home/pi/python/spider/speech/"
@@ -27,23 +26,26 @@ max_eye_intensity = 80    # max is 100, but may draw too much power.
 min_eye_intensity = 40
 
 #default values
-spider_parms = {"ON": False, "VOLUME":10000, "MAX_INT":25,
+spider_parms = {"SOUND_ON": False, "VOLUME":10000, "MAX_INT":25,
                 "EYES_ON": True} # 0 <= VOLUME  <= 100000+
 
 #---------------------------------------------------------------
 # Interrupts from the key fob
-def fob_rising(key):
-    global letter
-    if key == key_A:
-        letter = "A"
-    elif key == key_B:
-        letter = "B"
-    elif key == key_C:
-        letter = "C"
-    elif key == key_D:
-        letter = "D"
-    else:
-        print("Error: key fob returned unknown value -", key)
+# No longer used -doesn't work after a reboot.
+#def fob_rising(key):
+#   global letter
+
+#   letter = None
+#   if key == key_A:
+#       letter = "A"
+#   elif key == key_B:
+#       letter = "B"
+#   elif key == key_C:
+#       letter = "C"
+#   elif key == key_D:
+#       letter = "D"
+#   else:
+#       print("Error: key fob returned unknown value -", key)
 
 #---------------------------------------------------------------
 def get_spider_parms():
@@ -83,7 +85,7 @@ def set_sound():
     speak("11-Press-D-Exit")
 
     while True:
-        if spider_parms["ON"]:
+        if spider_parms["SOUND_ON"]:
             speak("09-Sound-On")
         else:
             speak("10-Sound-Off")
@@ -91,7 +93,7 @@ def set_sound():
         while True:
             letter = get_letter()
             if letter == "A":
-                spider_parms["ON"] = not spider_parms["ON"] 
+                spider_parms["SOUND_ON"] = not spider_parms["SOUND_ON"] 
                 changed = True
                 break
 
@@ -196,14 +198,14 @@ def set_eyepower():
 #---------------------------------------------------------------------------------
 # get input
 def get_letter():
-    ''' 'letter' gets set asynchronously in fob_rising.
-    We return the value of 'letter' for the function and reset 'letter' to None for next input.
-    '''
-    global letter
-    while letter is None:
+#   print("get_letter", flush=True)
+    while True:
+        for key, letter in [(key_A, "A"), (key_B, "B"), (key_C, "C"), (key_D, "D")]:
+#           print(f'({key}, {letter})', end=" ", flush=True)
+            if GPIO.input(key):  # check key
+                print(letter)
+                return letter
         sleep(0.1)      # 100ms
-    _, letter = letter, None
-    return _
 
 #---------------------------------------------------------------------------------
 # Wait for D key
@@ -247,16 +249,19 @@ def sig_handler(signum, frame):
 #---------------------------------------------------------------
 # Initialize the Pi
 GPIO.setmode(GPIO.BCM)
-GPIO.setwarnings(False)     # Turn off warning if we didn't a GPIO cleanup
+#GPIO.setwarnings(False)     # Turn off warning if we didn't a GPIO cleanup
 
 # Init key lines
 
 for key in [key_A, key_B, key_C, key_D]:
-    GPIO.setup(key, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # activate input
-    try:
-        GPIO.add_event_detect(key, GPIO.RISING, callback=fob_rising)
-    except RuntimeError as X:
-        print(f'RuntimeError: {X}')
+#   GPIO.setup(key, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # activate input
+    GPIO.setup(key, GPIO.IN)  # activate input - don't use pull_up_down
+#   commented out code with GPIO.RISING - doesn't work immediately after a reboot
+#   try:
+#       GPIO.add_event_detect(key, GPIO.RISING, callback=fob_rising)
+#   except RuntimeError as X:
+#       print(f'RuntimeError: {X}')
+
 # The above sometimes fails. Either:
 # 1. Ignore.
 # 2. Let the OS print out the details for debugging.
@@ -279,11 +284,13 @@ try:
         if only_D and d_count >= 2 :
             shutdown_spider()
 
-#       We want to turn spider off whenwe're using the ABCD clicker. spider draws too much
-#       power (drops the voltage to the IR board), and so if we're tlking to the spider,
+#       We want to turn spider off when we're using the ABCD clicker. spider draws too much
+#       power (drops the voltage to the IR board), and so if we're talking to the spider,
 #       we want to turn him off.
-        spider_parms["EYES_ON"] = False
-        put_spider_parms()
+
+# No longer necessary - we have separate/augmented power for the IR board.
+#       spider_parms["EYES_ON"] = False
+#       put_spider_parms()
 
         d_count = 0
         speak("12-Press-D-Menu")
@@ -311,16 +318,16 @@ try:
 
         if changed:
             speak("20-Values-Changed")
-            print(spider_parms, flush=True)    # for writing to piped log file.
+#           print(spider_parms, flush=True)    # for writing to piped log file.
             put_spider_parms()
             sleep(0.5)         # cosmetic pause before next sound message.
 
         # restore the red eyes to functioning mode.
-        spider_parms["EYES_ON"] = True
-        put_spider_parms()
+# No longer needed.
+#       spider_parms["EYES_ON"] = True
+#       put_spider_parms()
 
 except KeyboardInterrupt:
     print("")
 
 GPIO.cleanup()           # clean up GPIO
-#speak("07-Goodbye")
