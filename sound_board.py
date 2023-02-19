@@ -1,30 +1,8 @@
 #!/usr/bin/python3
-import json
+import asyncio
 import os
 import subprocess
 from random import randint
-from time import sleep
-
-class My_globals:
-    spider_parmfile = "spiderparms.json"
-    spider_parms = {"ON": False,
-            "VOLUME":10000,     # 0 <= VOLUME  <= 32768
-            "MAX_INT":25,       # 0 <= MAX_INT <= 10
-            "EYES_ON:": True }      # to inhibit the eyes while we're using the IR board
-
-    def __init__(self):
-        self.animation_active = False
-        self.end_request      = False
-        self.get_spider_parms() 
-
-    def get_spider_parms(self):
-        try:
-            with open(self.spider_parmfile, "r") as f:
-                self.spider_parms = json.load(f)
-        except FileNotFoundError:
-            # instead, use the defaults defined above
-            self.spider_parms = self.spider_parms
-            print(spider_parmfile, ": file not found.")
 
 #----------------------------------------------------------------------------------------
 class Sound_board:
@@ -49,22 +27,20 @@ class Sound_board:
             self.last_clip = 0
         return self.last_clip
 
-    def play_sound(self, my_globals):
+    async def play_sound(self, my_globals):
         limit = 2     # Play no more than 2x.
-        play  = 0
 
         sound_file = self.sound_list[self._get_sound_index()]
-        print(" {}".format(sound_file))
+#       print(f" {sound_file}")
 
-        mpg123 = "exec sudo -u pi mpg123 -q -f " + str(my_globals.spider_parms["VOLUME"]) \
-                + " " + sound_file
-
-        while my_globals.animation_active:
-            if play >= limit or my_globals.end_request:
+        for i in range(limit):
+            if my_globals.end_request:
                 break   # OK, we're gone!
-            play += 1
 
-            popen = subprocess.Popen(mpg123, stdout=subprocess.PIPE, shell=True,
-                preexec_fn=os.setsid)
-            popen.wait()
-            sleep(1)
+            t_sound = await asyncio.create_subprocess_exec("mpg123", "-q",
+                    "-f " + str(my_globals.spider_parms["VOLUME"]),
+                    sound_file, stdout=asyncio.subprocess.PIPE)
+            await t_sound.wait()   # wait for the mpg123 process to finish
+            if i == limit-1:
+                return   # don't wait after the last iteration completed
+            await asyncio.sleep(1)
