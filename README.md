@@ -1,7 +1,7 @@
 # Heavy Metal Hollywood Spider
 <img src="./media/Spider_with_eyes.png" height="50%" width="50%">
 
-**Heavy Meal Hollywood Spider** is an _*animatronics*_ project and is the fusion of two interests:
+**Heavy Metal Hollywood Spider** is an _*animatronics*_ project and is the fusion of two interests:
 * Art Metal class
 * Raspberry Pi and related hardware software.
 
