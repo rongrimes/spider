@@ -29,23 +29,7 @@ min_eye_intensity = 40
 spider_parms = {"SOUND_ON": False, "VOLUME":10000, "MAX_INT":25,
                 "EYES_ON": True} # 0 <= VOLUME  <= 100000+
 
-#---------------------------------------------------------------
-# Interrupts from the key fob
-# No longer used -doesn't work after a reboot.
-#def fob_rising(key):
-#   global letter
-
-#   letter = None
-#   if key == key_A:
-#       letter = "A"
-#   elif key == key_B:
-#       letter = "B"
-#   elif key == key_C:
-#       letter = "C"
-#   elif key == key_D:
-#       letter = "D"
-#   else:
-#       print("Error: key fob returned unknown value -", key)
+# "EYES_ON" no longer used now we know how to supply enough power to the IR board.
 
 #---------------------------------------------------------------
 def get_spider_parms():
@@ -254,17 +238,7 @@ GPIO.setmode(GPIO.BCM)
 # Init key lines
 
 for key in [key_A, key_B, key_C, key_D]:
-#   GPIO.setup(key, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)  # activate input
     GPIO.setup(key, GPIO.IN)  # activate input - don't use pull_up_down
-#   commented out code with GPIO.RISING - doesn't work immediately after a reboot
-#   try:
-#       GPIO.add_event_detect(key, GPIO.RISING, callback=fob_rising)
-#   except RuntimeError as X:
-#       print(f'RuntimeError: {X}')
-
-# The above sometimes fails. Either:
-# 1. Ignore.
-# 2. Let the OS print out the details for debugging.
 
 # Arm sigint to cause proceed to graceful end.
 signal.signal(signal.SIGINT, sig_handler)
@@ -283,14 +257,6 @@ try:
         only_D = wait_for_D()
         if only_D and d_count >= 2 :
             shutdown_spider()
-
-#       We want to turn spider off when we're using the ABCD clicker. spider draws too much
-#       power (drops the voltage to the IR board), and so if we're talking to the spider,
-#       we want to turn him off.
-
-# No longer necessary - we have separate/augmented power for the IR board.
-#       spider_parms["EYES_ON"] = False
-#       put_spider_parms()
 
         d_count = 0
         speak("12-Press-D-Menu")
@@ -318,16 +284,10 @@ try:
 
         if changed:
             speak("20-Values-Changed")
-#           print(spider_parms, flush=True)    # for writing to piped log file.
             put_spider_parms()
             sleep(0.5)         # cosmetic pause before next sound message.
 
-        # restore the red eyes to functioning mode.
-# No longer needed.
-#       spider_parms["EYES_ON"] = True
-#       put_spider_parms()
-
 except KeyboardInterrupt:
-    print("")
+    print()
 
 GPIO.cleanup()           # clean up GPIO
