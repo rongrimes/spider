@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 import asyncio
 import os
-import subprocess
 from random import randint
 
 #----------------------------------------------------------------------------------------
@@ -18,8 +17,12 @@ class Sound_board:
             _, file_extension = os.path.splitext(file)     # discard filename part
             if  file_extension[1:] in {"mp3"}:    # set of allowed sound files
                 self.sound_list.append(self.sound_dir + "/" + file)
-        print("Sound list: ", self.sound_list)
-        self.last_clip = randint(1, len(self.sound_list)) - 2   # (index of a random clip) - 2
+
+        self.last_clip = randint(0, len(self.sound_list) - 1)   # index of a random clip
+
+        for f in self.sound_list:
+            print(f"\t{f}")
+        print(f"start: {self.last_clip}")
 
     def _get_sound_index(self):
         self.last_clip += 1
@@ -41,6 +44,9 @@ class Sound_board:
                     "-f " + str(my_globals.spider_parms["VOLUME"]),
                     sound_file, stdout=asyncio.subprocess.PIPE)
             await t_sound.wait()   # wait for the mpg123 process to finish
-            if i == limit-1:
+            if i == limit - 1:
                 return   # don't wait after the last iteration completed
             await asyncio.sleep(1)
+
+if __name__ == "__main__":
+    s = Sound_board()
