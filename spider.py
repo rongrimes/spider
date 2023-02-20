@@ -94,6 +94,15 @@ async def flash_GB():
     print("flash_GB shutting down")
 
 #---------------------------------------------------------------
+async def track_myglobals():
+    # reload my_globals every 0.5 seconds
+    while True:
+        my_globals.get_spider_parms()   # since they can change by key_parms
+        if my_globals.end_request:
+            return
+        await asyncio.sleep(0.5)
+
+#---------------------------------------------------------------
 async def track_pir():
     def tick_str(ticks):
         ticks = f"{ticks}"
@@ -121,8 +130,7 @@ async def track_pir():
 #           The PIR line is now high: check for a false positive
             print("/ \b", end="", flush=True)
 
-            # Get spider parms
-            my_globals.get_spider_parms()   # since they can change by key_parms
+            # Check spider parms
             if my_globals.spider_parms["MAX_INT"] != max_eye_intensity:
                 max_eye_intensity = my_globals.spider_parms["MAX_INT"]
                 eyes_intensity = make_eye_intensities(max_eye_intensity) 
@@ -157,9 +165,6 @@ async def track_pir():
         curr_time = datetime.datetime.now().strftime('%H:%M:%S')
         print("\n>Rising  edge detected on port", str(pir_pin) + ",", curr_time)
 
-        # Get spider parms
-        my_globals.get_spider_parms()   # since they can change by
-                                        # key_parms.py or s_parms.py outside the program.
         if my_globals.spider_parms["SOUND_ON"]:
         #   It is expected that the sound task will complete before the next time it is invoked.    
             t_sound = asyncio.create_task(sound_board.play_sound(my_globals))
@@ -184,8 +189,7 @@ async def track_pir():
 
 #---------------------------------------------------------------------------------
 async def main():
-#   coros = [flash_GB(), track_pir()]
-    spider_coros = [flash_GB(), track_pir()]
+    spider_coros = [flash_GB(), track_pir(), track_myglobals()]
 
     results = await asyncio.gather(*spider_coros)
 
