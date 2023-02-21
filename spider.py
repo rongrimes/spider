@@ -79,7 +79,7 @@ async def flash_GB():
     print("flash_GB  co-routine")
 
     seconds = slow_flash          # Force flash on first entry
-    while my_globals.end_request == False:
+    while my_globals.spider_parms["END_REQUEST"] == False:
         if my_globals.animation_active or seconds >= slow_flash: # Flash every (slow_flash) seconds
             GPIO.output(led_GRN, GPIO.HIGH)
             GPIO.output(led_BLU, GPIO.HIGH)
@@ -95,12 +95,15 @@ async def flash_GB():
 
 #---------------------------------------------------------------
 async def track_myglobals():
+    print("track_myglobals co-routine")
+    
     # reload my_globals every 0.5 seconds
     while True:
         my_globals.get_spider_parms()   # since they can change by key_parms
-        if my_globals.end_request:
-            return
+        if my_globals.spider_parms["END_REQUEST"]:
+            break
         await asyncio.sleep(0.5)
+    print("track_myglobals shutting down")
 
 #---------------------------------------------------------------
 async def track_pir():
@@ -121,7 +124,7 @@ async def track_pir():
     max_eye_intensity = my_globals.spider_parms["MAX_INT"]  # get MAX-INT so we can check for future changes
 
     while True:     # main loop - only exited with a "return" statement.
-        while my_globals.end_request == False:
+        while my_globals.spider_parms["END_REQUEST"] == False:
             # Wait for pir line to go high
             if GPIO.input(pir_pin) == False:
                 await asyncio.sleep(wait_change)     # still quiet
@@ -139,7 +142,7 @@ async def track_pir():
 
             to_ticks = 0                       # timeout_ticks
             while to_ticks < max_ticks:        # now let's wait to see if it drops within wait_on seconds.
-                if my_globals.end_request:
+                if my_globals.spider_parms["END_REQUEST"]:
                     print("track_pir shutting down")
                     return
 
@@ -172,7 +175,7 @@ async def track_pir():
         await eyes_change(pwm_RED, UP=True)   # slow operation
 
         # Now wait for the pir pin to drop
-        while my_globals.end_request == False:
+        while my_globals.spider_parms["END_REQUEST"] == False:
             if GPIO.input(pir_pin):
                 await asyncio.sleep(wait_change)    # still high, continue animation
             else:
@@ -207,7 +210,6 @@ if os.path.isfile(ospid_file):
 # Set up globals and get spider_parms
 my_globals = My_globals()
 my_globals.animation_active = False   # (also) initialized in My_globals.__init__
-my_globals.end_request      = False   # use to end the threads.
 
 # Arm sigint to cause proceed to graceful end.
 signal.signal(signal.SIGINT, handler)
