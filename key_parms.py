@@ -27,9 +27,7 @@ min_eye_intensity = 40
 
 #default values
 spider_parms = {"SOUND_ON": False, "VOLUME":10000, "MAX_INT":25,
-                "EYES_ON": True} # 0 <= VOLUME  <= 100000+
-
-# "EYES_ON" no longer used now we know how to supply enough power to the IR board.
+                "END_REQUEST": False} # 0 <= VOLUME  <= 100000+
 
 #---------------------------------------------------------------
 def get_spider_parms():
@@ -182,12 +180,9 @@ def set_eyepower():
 #---------------------------------------------------------------------------------
 # get input
 def get_letter():
-#   print("get_letter", flush=True)
     while True:
         for key, letter in [(key_A, "A"), (key_B, "B"), (key_C, "C"), (key_D, "D")]:
-#           print(f'({key}, {letter})', end=" ", flush=True)
             if GPIO.input(key):  # check key
-                print(letter)
                 return letter
         sleep(0.1)      # 100ms
 
@@ -216,6 +211,13 @@ def speak(voice_key, volume=voice_volume):
 def shutdown_spider():
     speak("07-Goodbye")
 
+    spider_parms["END_REQUEST"] = True
+    put_spider_parms()
+    sleep(3)         # sleep to endure spider comes down.
+    # and rest to false for next startup
+    spider_parms["END_REQUEST"] = False
+    put_spider_parms()
+
     command = "/usr/bin/sudo /sbin/shutdown now"
     popen = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
     output = popen.communicate()[0]
@@ -235,13 +237,15 @@ def sig_handler(signum, frame):
 GPIO.setmode(GPIO.BCM)
 #GPIO.setwarnings(False)     # Turn off warning if we didn't a GPIO cleanup
 
-# Init key lines
+# Arm sigint to cause proceed to graceful end.
+signal.signal(signal.SIGINT, sig_handler)
 
+# Init key lines
 for key in [key_A, key_B, key_C, key_D]:
     GPIO.setup(key, GPIO.IN)  # activate input - don't use pull_up_down
 
-# Arm sigint to cause proceed to graceful end.
-signal.signal(signal.SIGINT, sig_handler)
+sleep(5)     #  Need this sleep to have the sound card stabilize after a reboot. Not necessary 
+             #     after just a simple reboot.
 
 # Get voice file
 get_voices_file()
