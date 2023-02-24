@@ -37,7 +37,7 @@ class Sound_board:
 #       print(f" {sound_file}")
 
         for i in range(limit):
-            if my_globals.end_request:
+            if my_globals.spider_parms["END_REQUEST"]:
                 break   # OK, we're gone!
 
             t_sound = await asyncio.create_subprocess_exec("mpg123", "-q",
