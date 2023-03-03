@@ -70,6 +70,8 @@ class Sound_board:
         volume = min(volume, self.max_volume_limit)
 
 #       print(f"{sound_file}, {volume}")
+        if not os.path.isfile(sound_file):
+            return                              # file does not exist.
 
         for i in range(limit):
             if my_globals.spider_parms["END_REQUEST"]:
