@@ -6,7 +6,7 @@ from random import randint
 
 #----------------------------------------------------------------------------------------
 class Sound_board:
-    sound_dir       = "/home/pi/python/spider/clips/"
+    sound_dir       = "/home/ron/python/spider/clips/"
     sound_parmfile  = sound_dir + "soundparms.json"
     voice_volume    = 40000      # range: 0 - max  (1000000?)
     max_volume      = 40000    # range: 0 - max

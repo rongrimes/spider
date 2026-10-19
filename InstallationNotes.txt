@@ -27,7 +27,7 @@ Installation Notes for the Spider/Pi Zero
     sudo apt-get install matchbox-keyboard
 	(https://raspberrypi.stackexchange.com/questions/41150/virtual-keyboard-activation)
 	
-7. Create ~pi/python/spider
+7. Create ~ron/python/spider
 
 7. Load spider files from backup.
 
@@ -40,5 +40,5 @@ Installation Notes for the Spider/Pi Zero
    Maybe unnecessary, but manual crontab was not producing results.
 
 10. Alternative: "crontab -e" with:
-    @reboot rm /home/pi/python/spider/ospid.txt # JOB_ID_2
-    @reboot sleep 2 && ~pi/run_spider.sh # JOB_ID_1
+    @reboot rm /home/ron/python/spider/ospid.txt # JOB_ID_2
+    @reboot sleep 2 && ~ron/run_spider.sh # JOB_ID_1

@@ -1,10 +1,10 @@
 #!/bin/bash
 
-echo ---------------- >> ~pi/spider.log
-date >> ~pi/spider.log
+echo ---------------- >> ~ron/spider.log
+date >> ~ron/spider.log
 
-cd ~pi/python/spider
-sudo --user=pi ./key_parms.py >> ~pi/spider.log 2>&1 &
-sleep 1
+cd ~ron/python/spider
+#sudo --user=ron ./key_parms.py >> ~ron/spider.log 2>&1 &
+#sleep 1
 
-sudo --user=pi ./spider.py >> ~pi/spider.log &
+sudo --user=ron ./spider.py >> ~ron/spider.log &

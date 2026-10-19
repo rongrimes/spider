@@ -52,9 +52,9 @@ See ![schematic](fritzing/spider_schematic.pdf).
 ## Operations
 Start spider with _crontab_:
 ```
-@reboot rm -f /home/pi/python/spider/ospid.txt # JOB_ID_1; Remove pid file to prevent mulitiple incursions of spider.
-@reboot sleep 1 && ~pi/run_spider.sh           # JOB_ID_2; start spider.
-@reboot sleep 2 && stdbuf -oL ~pi/python/spider/key_parms.py >> /tmp/spider.txt  # JOB_ID_3; start key controller.
+@reboot rm -f /home/ron/python/spider/ospid.txt # JOB_ID_1; Remove pid file to prevent mulitiple incursions of spider.
+@reboot sleep 1 && ~ron/run_spider.sh           # JOB_ID_2; start spider.
+@reboot sleep 2 && stdbuf -oL ~ron/python/spider/key_parms.py >> /tmp/spider.txt  # JOB_ID_3; start key controller.
 ```
 
 ## Fob Commands

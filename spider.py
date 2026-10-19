@@ -33,7 +33,7 @@ led_BLU = 26
 
 wait_change = 0.1    # time to wait for pir to change before looking again.
 
-ospid_file = "/home/pi/python/spider/ospid.txt"
+ospid_file = "/home/ron/python/spider/ospid.txt"
 
 #---------------------------------------------------------------
 #   functions that do things - non async
