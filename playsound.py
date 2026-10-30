@@ -31,7 +31,7 @@ signal.signal(signal.SIGINT, sig_handler)
 # Get the sound files
 sound = Sound_board()
 my_globals = Globals()
-my_globals.spider_parms = {"END_REQUEST": False, "VOLUME":10000}
+my_globals.spider_parms = {"RUNNING": True, "VOLUME":10}
 
 try:
     while True:
@@ -47,8 +47,8 @@ try:
                 # test indx value & trap if bad.
                 _ = sound.sound_clips[indx]
 
-            istr = input("Volume Level (0-40000, def=5000): ")
-            my_globals.spider_parms["VOLUME"] = 5000 if istr == "" else int(istr)
+            istr = input("Volume Level (0-19, def=10): ")
+            my_globals.spider_parms["VOLUME"] = 10 if istr == "" else int(istr)
 
         except (ValueError, IndexError):
             print()

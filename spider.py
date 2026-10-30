@@ -33,7 +33,8 @@ led_BLU = 26
 
 wait_change = 0.1    # time to wait for pir to change before looking again.
 
-ospid_file = "/home/ron/python/spider/ospid.txt"
+SP_DIR = "/home/ron/python/spider/"
+ospid_file = SP_DIR + "ospid.txt"
 
 #---------------------------------------------------------------
 #   functions that do things - non async
@@ -79,7 +80,7 @@ async def flash_GB():
     print("flash_GB  co-routine")
 
     seconds = slow_flash          # Force flash on first entry
-    while my_globals.spider_parms["END_REQUEST"] == False:
+    while my_globals.spider_parms["RUNNING"]:
         if my_globals.animation_active or seconds >= slow_flash: # Flash every (slow_flash) seconds
             GPIO.output(led_GRN, GPIO.HIGH)
             GPIO.output(led_BLU, GPIO.HIGH)
@@ -100,7 +101,7 @@ async def track_myglobals():
     # reload my_globals every 0.5 seconds
     while True:
         my_globals.get_spider_parms()   # since they can change by key_parms
-        if my_globals.spider_parms["END_REQUEST"]:
+        if not my_globals.spider_parms["RUNNING"]:
             break
         await asyncio.sleep(0.5)
     print("track_myglobals shutting down")
@@ -124,7 +125,7 @@ async def track_pir():
     max_eye_intensity = my_globals.spider_parms["MAX_INT"]  # get MAX-INT so we can check for future changes
 
     while True:     # main loop - only exited with a "return" statement.
-        while my_globals.spider_parms["END_REQUEST"] == False:
+        while my_globals.spider_parms["RUNNING"]:
             # Wait for pir line to go high
             if GPIO.input(pir_pin) == False:
                 await asyncio.sleep(wait_change)     # still quiet
@@ -142,7 +143,7 @@ async def track_pir():
 
             to_ticks = 0                       # timeout_ticks
             while to_ticks < max_ticks:        # now let's wait to see if it drops within wait_on seconds.
-                if my_globals.spider_parms["END_REQUEST"]:
+                if not my_globals.spider_parms["RUNNING"]:
                     print("track_pir shutting down")
                     return
 
@@ -168,14 +169,16 @@ async def track_pir():
         curr_time = datetime.datetime.now().strftime('%H:%M:%S')
         print("\n>Rising  edge detected on port", str(pir_pin) + ",", curr_time)
 
-        if my_globals.spider_parms["SOUND_ON"]:
-        #   It is expected that the sound task will complete before the next time it is invoked.    
-            t_sound = asyncio.create_task(sound_board.play_sound(my_globals))
+        playsound_onoff = my_globals.spider_parms["SOUND_ON"]
+#       if my_globals.spider_parms["SOUND_ON"]:
+#           print("Calling soundboard.playsound...")
+        #   It is expected that the sound task will complete before the next time it is invoked. 
+        t_sound = asyncio.create_task(sound_board.play_sound(my_globals, playsound_onoff))
 
         await eyes_change(pwm_RED, UP=True)   # slow operation
 
         # Now wait for the pir pin to drop
-        while my_globals.spider_parms["END_REQUEST"] == False:
+        while my_globals.spider_parms["RUNNING"]:
             if GPIO.input(pir_pin):
                 await asyncio.sleep(wait_change)    # still high, continue animation
             else:

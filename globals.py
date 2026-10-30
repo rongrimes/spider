@@ -6,12 +6,12 @@ class My_globals:
     spider_def_parms = {"SOUND_ON": False,
             "VOLUME":10000,     # 0 <= VOLUME  <= 32768
             "MAX_INT":800,       # 0 <= MAX_INT <= 1000
-            "END_REQUEST": False }      # to inhibit the eyes while we're using the IR board
+            "RUNNING": True }
 
     def __init__(self):
         self.animation_active = False
         self.get_spider_parms() 
-        self.spider_parms["END_REQUEST"] = False
+        self.spider_parms["True"] = True
 
     def get_spider_parms(self):
         try:

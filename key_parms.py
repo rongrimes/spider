@@ -1,14 +1,9 @@
 #!/usr/bin/env python3
 """Tiny Flask app: phone web page -> settings JSON file in the home directory.
 
-Run:   python3 app.py
+Run:   uv run key_parms.py
 Phone: http://raspberrypiz1.local:5000   (or http://<pi-ip>:5000)
 """
-
-#RG
-# Remember:
-# 1. sudo apt install mpg123
-
 
 import json
 import os
@@ -18,31 +13,44 @@ from pathlib import Path
 
 from flask import Flask, jsonify, request, abort
 
-#RG
 import sys
 import signal
 import subprocess
 from time import sleep
 
+# required by flask 
 #SETTINGS_FILE = Path(os.environ.get("SETTINGS_FILE", Path.home() / "spiderparms.json"))
 SETTINGS_FILE = Path(os.environ.get("SETTINGS_FILE", "./spiderparms.json"))
 API_TOKEN = os.environ.get("API_TOKEN")  # optional: set to require ?token=... / X-Token header
 
-#RG
-#speech_loc      = "/home/pi/python/spider/speech/"
-speech_loc      = Path(os.environ.get("speech_loc", "./speech/")
+SP_DIR = "/home/ron/python/spider/"
+#SETTINGS_FILE = SP_DIR + "spiderparms.json"
+
+speech_loc      = SP_DIR + "speech/"
 voices_file     = speech_loc + "speech_legend.json"
+
+'''
+Values from orig key_parms.py
+
+max_eye_intensity = 80    # max is 100, but may draw too much power.
+min_eye_intensity = 40
+
+'''
+# Global constants
+Sound_on = None
+voice_volume_ndx = None
+voice_values     = 20    # must match no. of entries in voice_ints
 
 # key -> (min, max, step) for integers
 INT_FIELDS = {
-    "VOLUME":  (0, 200000, 5000),
-    "MAX_INT": (0, 100, 1),
+    "VOLUME":  (0, 19, 1),     # index into voice_ints
+    "MAX_INT": (0, 100, 5),
 }
-BOOL_FIELDS = ["EYES_ON", "SOUND_ON", "END_REQUEST"]
+BOOL_FIELDS = ["SOUND_ON", "RUNNING"]
 
 DEFAULTS = {
-    "VOLUME": 100000, "EYES_ON": True, "MAX_INT": 70,
-    "SOUND_ON": False, "END_REQUEST": False,
+    "VOLUME": 10, "MAX_INT": 70,
+    "SOUND_ON": False, "RUNNING": False,
 }
 
 #RG from orig key_parms.py
@@ -58,17 +66,17 @@ def get_voices_file():
         sys.exit()
 
 #---------------------------------------------------------------------------------
-def speak(voice_key, volume=voice_volume):
+def speak(voice_key):
     if voice_key not in voices["files"]:
         print("speak: voice_key not found:" , voice_key)
         return
 
+    volume = voice_ints[voice_volume_ndx]
     sound_file = speech_loc + voices["files"][voice_key]["filename"]
-    mpg123 = "exec sudo -u pi mpg123 -q -f " + str(volume) + " " + sound_file
+    mpg123 = ["mpg123", "-q", "-f", str(volume), sound_file]
 
-    popen = subprocess.Popen(mpg123, stdout=subprocess.PIPE, shell=True,
-        preexec_fn=os.setsid)
-    popen.wait()
+    if Sound_on:
+        subprocess.run(mpg123)
 
 #---------------------------------------------------------------------------------
 #end RG from orig key_parms.py
@@ -76,14 +84,31 @@ def speak(voice_key, volume=voice_volume):
 app = Flask(__name__)
 lock = threading.Lock()
 
+def voice_intensities():
+    voice_ints = [0, 512]
+    for i in range(10, 19):
+        value = 1 << i
+        half_value = value + (value >> 1)
+        voice_ints.append(value)
+        voice_ints.append(half_value)
+#   print(voice_ints)
+    assert len(voice_ints) == voice_values
+    return voice_ints
+
 
 def load():
+    global Sound_on, voice_volume_ndx
     try:
-        data = json.loads(SETTINGS_FILE.read_text())
+#       data = json.loads(SETTINGS_FILE.read_text())
+#       data = json.load(SETTINGS_FILE)
+        with open(SETTINGS_FILE, "r") as f:
+            data = json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
         data = {}
+    Sound_on = data["SOUND_ON"]
+    voice_volume_ndx = data["VOLUME"]
+#   print("SOUND_ON", Sound_on, "\n", "Volume", voice_volume_ndx)
     return {**DEFAULTS, **data}
-
 
 def save(data):
     # atomic write so a power cut can't leave a half-written file
@@ -109,6 +134,7 @@ def get_settings():
 
 @app.post("/api/settings")
 def update_settings():
+    global voice_volume_ndx, Sound_on
     check_auth()
     incoming = request.get_json(silent=True)
     if not isinstance(incoming, dict):
@@ -116,20 +142,43 @@ def update_settings():
     with lock:
         data = load()
         for key, value in incoming.items():
+#           print(key, type(key), value)    # <<<<<<<<<<<<<<<<<<<<<<<<<
             if key in INT_FIELDS:
                 lo, hi, _ = INT_FIELDS[key]
                 if isinstance(value, bool) or not isinstance(value, int):
                     abort(400, f"{key} must be an integer")
                 data[key] = max(lo, min(hi, value))
+                if key == "VOLUME":
+                    voice_volume_ndx = data[key]
+                    speak("01-Hello-Spider")
             elif key in BOOL_FIELDS:
                 if not isinstance(value, bool):
                     abort(400, f"{key} must be true or false")
                 data[key] = value
+                if key == "SOUND_ON":
+#                   print("SOUND_ON", value)
+                    if Sound_on := data[key]:
+                        speak("01-Hello-Spider")
+                if key == "RUNNING":
+                    if value:  # (is True) => restarting spider.py
+                        # force remove of ospid.txt
+                        file_path = Path("ospid.txt")
+                        # Safely delete the file (ignores error if file is already missing)
+                        file_path.unlink(missing_ok=True)
+
+                        # Start spider; this does not wait for it to finish
+                        # NOTE: assumes we are in/home/ron/python/spider.
+                        proc = subprocess.Popen(["uv", "run", "spider.py"])
+                        sleep(1)    # prob. not needed
+                    else:      # asking spider py to stop
+                        save(data) # save the RUNNING value for spider to shutdown.
+                        sleep(2)   # asks spider to stop
+                        data["RUNNING"] = False
+                        # .... and resave at the end
             else:
                 abort(400, f"Unknown key: {key}")
         save(data)
         return jsonify(data)
-
 
 PAGE = """<!doctype html>
 <html><head>
@@ -179,7 +228,7 @@ function render(){
   for(const k of BOOLS){
     const d=document.createElement("div"); d.className="row";
     d.innerHTML=`<span class="name">${k}</span>
-      <button class="tog ${state[k]?"on":"off"}">${state[k]?"true":"false"}</button>`;
+      <button class="tog ${state[k]?"on":"off"}">${state[k]?"on":"off"}</button>`;
     d.querySelector("button").onclick=()=>post({[k]:!state[k]});
     ui.appendChild(d);
   }
@@ -194,14 +243,14 @@ def index():
     check_auth()
     return (PAGE.replace("__INTS__", json.dumps(INT_FIELDS))
                 .replace("__BOOLS__", json.dumps(BOOL_FIELDS)))
-
-
 # Get voice file
 get_voices_file()
-speak("01-Hello-Spider")
 
-# Get spider parms
-get_spider_parms()
+# Get spider parms. Also loads globals: Sound_on, voice_volume_ndx
+load()
+
+# Load globals
+voice_ints = voice_intensities()
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
