@@ -76,7 +76,8 @@ def speak(voice_key):
     mpg123 = ["mpg123", "-q", "-f", str(volume), sound_file]
 
     if Sound_on:
-        subprocess.run(mpg123)
+#       subprocess.run(mpg123)
+        subprocess.Popen(mpg123)
 
 #---------------------------------------------------------------------------------
 #end RG from orig key_parms.py
